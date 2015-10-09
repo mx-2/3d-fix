@@ -4,7 +4,7 @@
 This fix makes the game "Risen" 3D vision ready.
 
 #####What is fixed:
-- Halos in always everything
+- Halos in almost everything
 - Skybox and stars
 - HUD moved to depth
 - Shadows
