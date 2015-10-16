@@ -18,8 +18,11 @@ This fix has two presets for the HUD settings which can be selected with the num
 
 #####Known issues:
 - Loading screens have red bars on the lief and right side.
+  Look into the _unfixed folder on git if you like to try fixing it.
+- Torch shadows are disabled - this should not be too bad as only the players torch casts shadows at all.
 
 #####Changelog:
+- v1.2: Disabled torch shadow due to problems at high convergence, updated screenshots
 - v1.1: Shadows are now working with any convergence
 - v1.0: initial release
 

@@ -105,13 +105,24 @@ mov o2, r2
     dp4 r0.z, r1, c2
     dp4 r0.w, r1, c3
     //mov o2.xy, r2		// fixed above
+    
+texldl r30, c200.z, s0
+add r30.w, r0.w, -r30.y
+//mul r30.x, r30.x, c200.w
+//mad r0.x, r30.x, r30.w, r0.x	// steroerize - no
+    
     mov o0, r0			// disables light
     
-// fix makes shadows on screen depth, halos still there
-//texldl r30, c200.z, s0
-//add r30.w, r0.w, -r30.y
+// fix makes shadows on screen depth, halos still there, problmes at square bounds
+texldl r30, c200.z, s0
+add r30.w, r0.w, -r30.y
+//mul r30.x, r30.x, c200.w
 //mad r0.x, r30.x, r30.w, r0.x	// steroerize - no
-//add r0.w, r0.w, c201.z	// moves shadow, all faces
+
+//add r0.y, r0.y, c200.y	// moves shadow, all faces		// move down at screen
+//add r0.x, r0.x, c200.y		// move left on screen, break borders
+
+// still issues at square borders
 
     mov o3, r0
     mov o1, v1			// no light, fix worse

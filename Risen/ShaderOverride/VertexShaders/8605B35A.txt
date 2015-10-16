@@ -20,7 +20,7 @@
 // Stars
 
     vs_3_0
-def c200, 1.0, 4000, 0.0625, 0
+def c200, 1.0, 10000, 0.0625, 0
     def c4, 1, 0, 0, 0
     dcl_position v0
     dcl_normal v1

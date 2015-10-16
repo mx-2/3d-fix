@@ -1,0 +1,27 @@
+Cube shadow (torch)
+
+VS: 529EEA40.txt
+PS: 33155412.txt
+
+
+It seems that the 6 faces of the cube are rendered into one single
+texture and at variing positions. The texcoords are somehow preprocessed
+in the vertex shader and/or CPU and than get sampled in the pixel shader.
+
+Stereorization causes that same coords move to a different quad or 
+even outside the valid texture areas. This causes problematic seams.
+
+A working fix seems to need a detection of the bounds and a remapping 
+to the correct area. How the quad selection works is unknown.
+
+--------------------------
+|      xxxxxx            |
+|      xxxxxx            |
+|      xxxxxx            |
+|xxxxxxxxxxxxxxxxxxxxxxxx|
+|xxxxxxxxxxxxxxxxxxxxxxxx|
+|xxxxxxxxxxxxxxxxxxxxxxxx|
+|      xxxxxx            |
+|      xxxxxx            |
+|      xxxxxx            |
+--------------------------
