@@ -9,7 +9,8 @@ This fix is currently work in progress.
 - Crosshair moved to depth
 - HUD moved to depth
 - Shadows
+- Lights (torches on walls, still some glitches at some very narrow angles)
 
 #####What is not fixed:
-- Point lights, reflections on wet rocks, shadows on players hat, ...
+- Point lights, reflections (wet rocks, ...)
 
