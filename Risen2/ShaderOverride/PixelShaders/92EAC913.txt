@@ -39,16 +39,18 @@
 //     c2   = { 0, 0, 0, 0 };
 //
 
+// c220 = InverseViewProjection - from parent VS
+
 // Lights - torches on walls
 
+// TODO: The lights are somehow different between the eyes
+// if looking nearly parallel onto the lighted surface from close range.
+
     ps_3_0
-// Helix sampler
-def c200, 0.275, 0.25, 0.0625, 0
-def c201, 0, -0, 0, 0
-dcl_2d s13
+def c200, 1, 2300, 0.0625, 0
     def c3, 0.5, 0.99609375, 0.124511719, 0.000244140625
     def c4, 2, -1, 3, 1
-    dcl_texcoord v0
+    dcl_texcoord v0			// color
     dcl_texcoord1 v1.xyz
     dcl_texcoord2_pp v2
     dcl vPos.xy
@@ -57,38 +59,43 @@ dcl_2d s13
     dcl_2d s2
     dcl_2d s3
     dcl_2d s4
-    mad r0.xy, vPos, c2, c2.zwzw
-    texld r1, r0, s0					// sample depth
-rcp r28.x, r1.x
-    mul r0.z, r1.x, c1.y
+dcl_2d s13
 
-// Use the new PixelShader prime directive
-// pos.x += sep * (1 - c * conv / depth)
-mov r30, v1.xyz
-texldl r29, c200.z, s13
-mul r29.w, c200.x, r28.x
-
-// x: fix S with c=0.2, fixes N with c=-0.2
-// z: fix E with c=0.2, fixes W with c=-0.2
-// Extract xz vector from camera vector (c0)
-mov r26, c200.w
-mov r26.xyz, c0.xyz
-nrm r27, r26
-mul r27.xyz, r29.www, r27.xyz		// * scaled depth
-//mul r27.xz, r27.xz, r29.yy		// * conv
-
-// apply stereo correction
-mad r30.x, r29.x, -r27.z, r30.x
-mad r30.z, r29.x, r27.x, r30.z
-//mad r30.y, r29.x, r27.y, r30.y	// not good: shifts light up/down dependent on view angle
-
-// TODO: small jump to 2D remaining
-
-    nrm_pp r1.xyz, r30//v1
+    mad r0.xy, vPos, c2, c2.zwzw	// Screen position
+    								// (using vPos means no halo issues to worry about in the VS)
+    texld r1, r0, s0				// Sample screen depth to r1
+mov r28.x, r1.x						// Store depth
+    mul r0.z, r1.x, c1.y			// Scaling depth buffer
+	nrm_pp r1.xyz, v1
     dp3 r0.w, c0, r1
     rcp r0.w, r0.w
-    mul r0.z, r0.w, r0.z
-    mad_pp r2.xyz, r1, -r0.z, v2
+    mul r0.z, r0.w, r0.z			// Scaling depth buffer
+   
+    //mad_pp r2.xyz, r1, -r0.z, v2	// Multiplying 3D coordinate by depth value and adding offset
+									// Split that instruction in two:
+mul r20.xyz, r1, -r0.z				// r20 is in world coordiantes
+
+//add r20.x, c201.x, r20.x			// moves relative to world, WE dir, range: +/- 200
+//mov r29.w, c201.x
+
+// Pixel shader correction formula
+texld r29, c200.z, s13
+mul r29.w, c200.y, r28.x		// c * depth
+mul r29.w, r29.w, r29.y			// c * conv * depth
+add r29.w, r29.w, -c200.x		// 1 - (.)
+mul r29.w, r29.w, r29.x			// (.) * sep
+
+// Transform correction from screen to world coordinates
+mul r30.x, r29.w, c220.x
+mul r30.y, r29.w, c221.x
+mul r30.z, r29.w, c222.x
+mul r30.w, r29.w, c223.x
+
+// Apply correction
+add r2.xyz, r20.xyz, r30.xyz
+// 2nd half of split instruction:
+add r2.xyz, r2, v2
+
     dp3_pp r0.z, r2, r2
     rsq_pp r0.z, r0.z
     mad_pp r3.xyz, r2, r0.z, -r1
@@ -97,7 +104,7 @@ mad r30.z, r29.x, r27.x, r30.z
     mul_sat_pp r0.z, r0.z, v2.w
     nrm_pp r4.xyz, r3
     texld_pp r3, r0, s1
-    texld_pp r5, r0, s2					// sample shadow (light)
+    texld_pp r5, r0, s2					// sample light
     mad_pp r0.xyw, r3.xyzz, c4.x, c4.y
     mov_pp r3.y, r3.w
     nrm_pp r6.xyz, r0.xyww
@@ -109,7 +116,7 @@ mad r30.z, r29.x, r27.x, r30.z
     mul_pp r0.y, r5.y, c3.y
     mad r2.xyz, r4, c3.z, r0.y
     add_pp r1.xyz, r2, c3.w
-    texld_pp r2, r1.ywzw, s3		// diffuse sampler - partial broken, darker
+    texld_pp r2, r1.ywzw, s3		// diffuse sampler, darker
     mul_pp r0.x, r0.x, r2.w
     texld_pp r2, r1.xwzw, s3		// broken, black stripe below
     texld_pp r4, r1.xwzw, s4		// specular sampler, nothing
@@ -124,6 +131,5 @@ mad r30.z, r29.x, r27.x, r30.z
     add_pp r0.x, r0.x, c4.w
     mul_pp r0.x, r5.x, r0.x
     mul_pp oC0, r0.x, r1
-//mov oC0, c201.x					// disables lights
 
 // approximately 50 instruction slots used (7 texture, 43 arithmetic)
