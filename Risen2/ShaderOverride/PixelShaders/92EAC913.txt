@@ -45,9 +45,10 @@
 
 // TODO: The lights are somehow different between the eyes
 // if looking nearly parallel onto the lighted surface from close range.
+// -> Fix specular highlights
 
     ps_3_0
-def c200, 1, 2300, 0.0625, 0
+def c200, 1, 230000, 0.0625, 0
     def c3, 0.5, 0.99609375, 0.124511719, 0.000244140625
     def c4, 2, -1, 3, 1
     dcl_texcoord v0			// color
@@ -81,7 +82,8 @@ mul r20.xyz, r1, -r0.z				// r20 is in world coordiantes
 // Pixel shader correction formula
 texld r29, c200.z, s13
 mul r29.w, c200.y, r28.x		// c * depth
-mul r29.w, r29.w, r29.y			// c * conv * depth
+// Strange, but convergence must not be used in this fix!
+//mul r29.w, r29.w, r29.y			// c * conv * depth
 add r29.w, r29.w, -c200.x		// 1 - (.)
 mul r29.w, r29.w, r29.x			// (.) * sep
 

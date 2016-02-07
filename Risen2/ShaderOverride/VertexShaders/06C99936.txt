@@ -29,7 +29,7 @@
 
 // c220 - InverseViewProj - from c0
 
-// Torch and candle point lights (without shadow) and global lighting - exteriors
+// Point lights without shadows
 
     vs_3_0
 	

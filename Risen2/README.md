@@ -12,5 +12,6 @@ This fix is currently work in progress.
 - Point lights without shadows
 
 #####What is not fixed:
-- Point lights with shadows, reflections (wet rocks, ...)
+- Point lights with shadows
+- Specular highlights (wet rocks, some point lights, ...)
 

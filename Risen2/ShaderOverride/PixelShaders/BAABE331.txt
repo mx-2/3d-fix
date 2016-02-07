@@ -37,13 +37,13 @@
 
 // c220 = InverseViewProjection - from parent VS
 
-// "Ambient" point lights - exterior
+// "Ambient" point lights - exterior - no specular
 // similar fix as 92EAC913
 
     ps_3_0
     def c3, 3, 1, 2, -1
     def c4, 0.5, 0, 0, 0
-def c200, -0.1, 2300, 0.0625, 1
+def c200, -0.1, 230000, 0.0625, 1
     dcl_texcoord v0.xyz
     dcl_texcoord1 v1.xyz
     dcl_texcoord2_pp v2
@@ -68,7 +68,6 @@ mul r20, r0, -r0.w						// r20 is in world coordiantes
 // Pixel shader correction formula
 texld r29, c200.z, s13
 mul r29.w, c200.y, r28.x		// c * depth
-mul r29.w, r29.w, r29.y			// c * conv * depth
 add r29.w, r29.w, -c200.x		// 1 - (.)
 mul r29.w, r29.w, r29.x			// (.) * sep
 
