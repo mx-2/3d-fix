@@ -120,21 +120,20 @@ dcl_2d s13
     mad r1.xyz, c7, r1.z, v1		// displace shadow dependent on depth, c7: broken stereo vector
     texld r2, v0, s1				// sample depth with v0, r2.x is depth
     
-// Use the new PixelShader prime directive
 // pos.x += sep * (1 - c * conv / depth)
 texldl r29, c200.z, s13
-rcp r28.x, r2.x
-mul r29.w, c200.y, r28.x
+rcp r28.x, r2.x						// 1 / depth
+mul r29.w, c200.y, r28.x			// c / depth
 
 // +1.025*depth to x for N, -1.025*depth to x for S
 // -1.025*depth to z for E, +1.025*depth to z for W
 // Extract xz vector from stereo vector (c7)
 nrm r27, c7
-mul r27.xz, r29.ww, r27.xz
-mul r27.xz, r27.xz, r29.yy
+mul r27.xz, r27.xz, r29.ww		// xz_vec * c / depth
+mul r27.xz, r27.xz, r29.yy		// (.) * convergence
 
 // apply stereo correction
-mad r1.xz, r29.xx, r27.xz, r1.xz
+mad r1.xz, r29.xx, r27.xz, r1.xz	// += (.) * seperation
 
     mad r1.xyz, r1, r2.x, c10		// shifts shadow
     mad_sat r2.x, r2.x, c9.x, c9.y

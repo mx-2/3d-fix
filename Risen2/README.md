@@ -10,8 +10,8 @@ This fix is currently work in progress.
 - HUD moved to depth
 - Shadows
 - Point lights without shadows
+- Point lights with shadows (by DarkStarSword)
 
-#####What is not fixed:
-- Point lights with shadows
+#####Disabled effects:
 - Specular highlights (wet rocks, some point lights, ...)
 

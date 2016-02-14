@@ -60,7 +60,6 @@ mul r20.xyz, r1, -r0.x				// r20 is in world coordiantes
 // Pixel shader correction formula
 texld r29, c200.z, s13
 mul r29.w, c200.y, r28.x		// c * depth
-add r29.w, r29.w, -c200.x		// 1 - (.)
 mul r29.w, r29.w, r29.x			// (.) * sep
 
 // Transform correction from screen to world coordinates

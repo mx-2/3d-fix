@@ -86,7 +86,7 @@ mad r20.x, r30.x, r30.w, r20.x
 dp4 r21.x, r20, c220
 dp4 r21.y, r20, c221
 dp4 r21.z, r20, c222
-dp4 r21.w, r20, c223
+//dp4 r21.w, r20, c223
 
 // Removing c4 does not change anything.
 add o2.xyz, r21, -c4

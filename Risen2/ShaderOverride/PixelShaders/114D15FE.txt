@@ -48,7 +48,11 @@
 //     c3   = { 0.01, 0, 0, 0 };
 //
 
-// Candle and torch light (cube mapped)
+// Point lights with cube mapped shadows
+// Specular ?
+
+// c210 - InverseViewProj - from parent VS
+// c214 - ViewProj - from parent VS
 
     ps_3_0
 def c200, 1, 0, 0.0625, 0
@@ -76,27 +80,31 @@ dcl_2d s13
     dcl_2d s6
     mad r0.xy, vPos, c2, c2.zwzw
     texld r1, r0, s0				// sample depth
-    mul r0.z, r1.x, c1.y
+    mul r0.z, r1.x, c1.y			// scale depth
     nrm_pp r1.xyz, v2
     dp3 r0.w, c0, r1
     rcp r0.w, r0.w
-    mul r0.z, r0.w, r0.z
-    mul r2.xyz, r0.z, r1
+    mul r0.z, r0.w, r0.z			// scale depth
+    mul r2.xyz, r0.z, r1			// r2 determines clipping planes
+									// r2 is r1 multiplied with scaled depth
+									// -> fix r1 and r2
 
 // World space correction for shadows:
-
 mov r20.xyz, r2
 mov r20.w, c200.y
 
+// ViewProjection
 dp4 r30.x, c214, r20
 dp4 r30.y, c215, r20
 dp4 r30.z, c216, r20
 dp4 r30.w, c217, r20
 
+// Subtract stereo correction
 texldl r31, c200.z, s13
 add r31.w, r30.w, -r31.y
 mad r30.x, -r31.w, r31.x, r30.x
 
+// Inverse ViewProjection
 dp4 r2.x, c210, r30
 dp4 r2.y, c211, r30
 dp4 r2.z, c212, r30
@@ -104,7 +112,7 @@ dp4 r2.z, c212, r30
 // Go back and fix r1 as well as it is used throughout the rest of the shader
 // for light placement:
 rcp r30.w, r0.z
-mul r1.xyz, r30.w, r2
+mul r1.xyz, r30.w, r2		// Divide by depth because r2 = r1 * depth
 
     mad_pp r3.xyz, r1, -r0.z, v3
     mov r2.w, c5.x
@@ -121,9 +129,9 @@ mul r1.xyz, r30.w, r2
     texld_pp r4, r4, s3
     mad r4, r4, c5.y, c5.z
     mad r5, r4.xzyz, c3.x, r2.zwzw
-    
+
     // load shadow layers - cube problems
-    
+
     texld_pp r6, r5, s4					// sample shadow - a bit darker
     texld_pp r5, r5.zwzw, s4			// nothing
     mov_pp r6.y, r5.x
@@ -142,7 +150,7 @@ mul r1.xyz, r30.w, r2
     mov_pp r4.y, r5.x
     texld_pp r5, r2, s4
     texld_pp r2, r2.zwzw, s4
-    
+
     mov_pp r4.w, r2.x
     mov_pp r4.z, r5.x
     add r2, r0.z, -r4
@@ -170,7 +178,10 @@ mul r1.xyz, r30.w, r2
     mad_pp r3.xy, r2, c6.z, c6.z
     mad r0.xyz, r3, c4.x, r0.x
     add_pp r1.xyz, r0, c4.y
-    texld_pp r3, r1.ywzw, s5
+    //texld_pp r3, r1.ywzw, s5		// Totaly displaced lighting, related to specular ?
+									// right eye: left of screen, left eye: right of screen
+									// Requires another stereo correction ?
+									// Almost no visual loss visible if disabled.
     mul_pp r0.x, r2.x, r3.w
     texld_pp r2, r1.xwzw, s5
     texld_pp r3, r1.xwzw, s6
@@ -184,6 +195,5 @@ mul r1.xyz, r30.w, r2
     dp2add_pp r0.x, r0.x, r0.w, -r0.y
     add_pp r0.x, r0.x, c5.x
     mul_pp oC0, r0.x, r1
-//mov oC0, c200.y					// 0: disabled lights and shadows, 1 causes strange effects, 0.5 for full intensity
 
 // approximately 89 instruction slots used (16 texture, 73 arithmetic)

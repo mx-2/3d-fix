@@ -42,6 +42,10 @@
 // c220 = InverseViewProjection - from parent VS
 
 // Lights - torches on walls
+// Specular highlight in lightspheres on:
+//  - walls
+//  - table in first floor of the sword coast main building
+//  - cannons
 
 // TODO: The lights are somehow different between the eyes
 // if looking nearly parallel onto the lighted surface from close range.
@@ -49,6 +53,8 @@
 
     ps_3_0
 def c200, 1, 230000, 0.0625, 0
+def c201, 0.5, 1, 0.5, 1
+def c202, 0.5, 0.5, 0.5, 0.5
     def c3, 0.5, 0.99609375, 0.124511719, 0.000244140625
     def c4, 2, -1, 3, 1
     dcl_texcoord v0			// color
@@ -84,7 +90,7 @@ texld r29, c200.z, s13
 mul r29.w, c200.y, r28.x		// c * depth
 // Strange, but convergence must not be used in this fix!
 //mul r29.w, r29.w, r29.y			// c * conv * depth
-add r29.w, r29.w, -c200.x		// 1 - (.)
+//add r29.w, -r29.w, c200.x		// 1 - (.), must not be calculated for this shader
 mul r29.w, r29.w, r29.x			// (.) * sep
 
 // Transform correction from screen to world coordinates
@@ -117,13 +123,18 @@ add r2.xyz, r2, v2
     mad_pp r4.xy, r0, c3.x, c3.x
     mul_pp r0.y, r5.y, c3.y
     mad r2.xyz, r4, c3.z, r0.y
+
+// Disabled specular below, high visual quality loss
+
     add_pp r1.xyz, r2, c3.w
-    texld_pp r2, r1.ywzw, s3		// diffuse sampler, darker
+    //texld_pp r2, r1.ywzw, s3		// diffuse sampler, darker
     mul_pp r0.x, r0.x, r2.w
-    texld_pp r2, r1.xwzw, s3		// broken, black stripe below
-    texld_pp r4, r1.xwzw, s4		// specular sampler, nothing
+    //texld_pp r2, r1.xwzw, s3		// broken, black stripe below
+    //texld_pp r4, r1.xwzw, s4		// specular sampler, used below
+mov r4, c201
     mov_pp r3.x, r1.z
-    texld_pp r1, r3, s4				// nothing
+    //texld_pp r1, r3, s4			// disabling makes LR differences stronger
+mov r4, c202
     mul_pp r1.w, r4.y, r1.x
     max_pp r1.xyz, r0.x, r2
     mul r1, r1, v0					// no light, broken shadow
