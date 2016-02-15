@@ -53,9 +53,9 @@ dcl_2d s13
     mad r0.xy, vPos, c2, c2.zwzw
     texld r1, r0, s0
     texld_pp r0, r0, s1
-mov r28, r1								// store depth
     
     mul r0.y, r1.x, c1.y
+mov r28.x, r0.y								// Store scaled depth
     nrm r1.xyz, v1
     dp3 r0.z, c0, r1
     rcp r0.z, r0.z
@@ -65,8 +65,7 @@ mul r20, r1.xxyz, -r0.y							// r20 is in world coordinates
 
 // Pixel shader correction formula
 texld r29, c200.z, s13
-mul r29.w, c200.y, r28.x		// c / depth
-mul r29.w, r29.w, r29.x			// * sep
+mul r29.w, r28.x, r29.x			// depth * separation
 
 // Transform correction from screen to world coordinates
 mul r30.x, r29.w, c220.x

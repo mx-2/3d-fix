@@ -37,7 +37,7 @@
 
 // c220 = InverseViewProjection - from parent VS
 
-// "Ambient" point lights - exterior - no specular
+// "Ambient" point lights - no specular
 // similar fix as 92EAC913
 
     ps_3_0
@@ -58,8 +58,8 @@ dcl_2d s13
     rcp r0.w, r0.w
     mad r1.xy, vPos, c2, c2.zwzw
     texld r2, r1, s0					// sample screen depth to r2
-mov r28, r2								// store depth
     mul r1.z, r2.x, c1.y
+mov r28.x, r1.z							// Store scaled depth
     mul r0.w, r0.w, r1.z
     //mad_pp r0.xyz, r0, -r0.w, v2		// Multiplying 3D coordinate by depth value and adding offset
 										// Split that instruction in two:							
@@ -67,8 +67,7 @@ mul r20, r0, -r0.w						// r20 is in world coordiantes
 
 // Pixel shader correction formula
 texld r29, c200.z, s13
-mul r29.w, c200.y, r28.x		// c * depth
-mul r29.w, r29.w, r29.x			// (.) * sep
+mul r29.w, r28.x, r29.x			// depth * separation
 
 // Transform correction from screen to world coordinates
 mul r30.x, r29.w, c220.x

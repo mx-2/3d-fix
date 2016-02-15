@@ -71,8 +71,8 @@ dcl_2d s13
     mad r0.xy, vPos, c2, c2.zwzw	// Screen position
     								// (using vPos means no halo issues to worry about in the VS)
     texld r1, r0, s0				// Sample screen depth to r1
-mov r28.x, r1.x						// Store depth
     mul r0.z, r1.x, c1.y			// Scaling depth buffer
+mov r28.x, r0.z						// Store scaled depth
 	nrm_pp r1.xyz, v1
     dp3 r0.w, c0, r1
     rcp r0.w, r0.w
@@ -87,11 +87,11 @@ mul r20.xyz, r1, -r0.z				// r20 is in world coordiantes
 
 // Pixel shader correction formula
 texld r29, c200.z, s13
-mul r29.w, c200.y, r28.x		// c * depth
+//mul r29.w, c200.y, r28.x		// Using scaled depth removes the magic constant here.
 // Strange, but convergence must not be used in this fix!
 //mul r29.w, r29.w, r29.y			// c * conv * depth
 //add r29.w, -r29.w, c200.x		// 1 - (.), must not be calculated for this shader
-mul r29.w, r29.w, r29.x			// (.) * sep
+mul r29.w, r28.x, r29.x			// depth * separation
 
 // Transform correction from screen to world coordinates
 mul r30.x, r29.w, c220.x
