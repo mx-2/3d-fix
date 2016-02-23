@@ -6,4 +6,5 @@ Profile based on Prototype fixes a lot of halo issues.
 
 #####What is fixed:
 - HUD moved to depth
-
+- Halos
+- Shadows
