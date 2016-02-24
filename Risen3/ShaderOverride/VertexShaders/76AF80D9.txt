@@ -48,7 +48,7 @@
 //     c3   = { 0, 0, 0, 0 };
 //
 
-// Halos inside shadows
+// Shadows from sun, halos inside shadows without fix
 
     vs_3_0
 // Helix sampler

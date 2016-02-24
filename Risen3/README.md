@@ -8,3 +8,11 @@ Profile based on Prototype fixes a lot of halo issues.
 - HUD moved to depth
 - Halos
 - Shadows
+- Point lights
+
+#####What is not fixed:
+- Specular highlights
+- Sky
+- Fog and sunrays
+- Reflections in puddles
+
