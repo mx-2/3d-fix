@@ -126,7 +126,7 @@ dcl_2d s13
 // Subtractive stereo correction
 // r0.z contains depth
 texldl r31, c200.z, s13
-mul r31.w, r31.y, c200.w		// Scale convergence with c200.w
+mul r31.w, r31.y, c200.w		// Scale convergence with c200.w: fitting parameter
 add r31.w, r31.w, r0.z			// depth - convergence
 mad r0.x, r31.w, -r31.x, r0.x	// (.) * separation
 
