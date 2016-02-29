@@ -1,7 +1,7 @@
 # Risen 2 3D vision fix
 ========
 
-This fix is currently work in progress.
+This work in progress aims to fix makes the game "Risen 2" 3D vision ready.
 
 #####What is fixed:
 - Stars
@@ -12,6 +12,23 @@ This fix is currently work in progress.
 - Point lights without shadows
 - Point lights with shadows (by DarkStarSword)
 
-#####Disabled effects:
+#####What is not fixed or disabled:
 - Specular highlights (wet rocks, some point lights, ...)
 
+#####Installation:
+- Copy this folder structure into the directory which contains the Risen.exe (should be ./system) so that "DX9Settings.ini" is in the same directory as the .exe. The screenshots directory is not needed.
+- Get the HelixMod d3d9.dll from https://s3.amazonaws.com/-HeliX-/DLLS/DllsModPack1.zip (/DLLs/RELEASE/d3d9.dll) and put it in the same directory.
+
+Alternatively download Risen2-3d-fix.7z in the downloads directory. It contains all necessary files.
+
+#####Known issues:
+- When starting the game, there are flickering edges in the main menu.
+
+#####Changelog:
+- v0.1: Initial work in progress release
+
+#####Credits:
+- bo3b for explaining the basics of shader fixing
+  http://wiki.bo3b.net/index.php?title=Bo3b%27s_School_for_Shaderhackers
+- DarkStarSword for his help with light and shadow fixes
+- HeliX for his dlls
