@@ -11,9 +11,10 @@ This work in progress aims to fix makes the game "Risen 2" 3D vision ready.
 - Shadows
 - Point lights without shadows
 - Point lights with shadows (by DarkStarSword)
+- Global specular highlights
 
-#####What is not fixed or disabled:
-- Specular highlights (wet rocks, some point lights, ...)
+#####What is not fixed:
+- Specular highlights in some point lights
 
 #####Installation:
 - Copy this folder structure into the directory which contains the Risen.exe (should be ./system) so that "DX9Settings.ini" is in the same directory as the .exe. The screenshots directory is not needed.
