@@ -12,9 +12,10 @@ Profile, based on Prototype, fixes a lot of halo issues.
 - Point lights
 - Sun, clouds
 - Fog (approximate fix)
+- Specular highlights
 
 #####What is not fixed:
-- Specular highlights
+- Some far lights / shadows
 - Reflections in puddles and on crystals
 
 #####Disabled effects:
