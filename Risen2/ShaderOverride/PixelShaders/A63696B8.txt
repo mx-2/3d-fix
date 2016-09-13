@@ -65,13 +65,14 @@ mul r20, r1.xxyz, -r0.y							// r20 is in world coordinates
 
 // Pixel shader correction formula
 texld r29, c200.z, s13
-mul r29.w, r28.x, r29.x			// depth * separation
+add r28.y, r28.x, -r29.y		// scaled_depth - convergence
+mul r29.w, r28.y, r29.x			// (.) * separation
 
 // Transform correction from screen to world coordinates
 mul r30.x, r29.w, c220.x
 mul r30.y, r29.w, c221.x
 mul r30.z, r29.w, c222.x
-mul r30.w, r29.w, c223.x
+//mul r30.w, r29.w, c223.x
 
 // Apply correction
 add r20.yzw, r20, r30.xxyz
