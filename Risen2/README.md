@@ -1,7 +1,7 @@
 # Risen 2 3D vision fix
 ========
 
-This work in progress aims to fix makes the game "Risen 2" 3D vision ready.
+This fix makes the game "Risen 2" 3D vision ready.
 
 #####What is fixed:
 - Stars
@@ -11,11 +11,7 @@ This work in progress aims to fix makes the game "Risen 2" 3D vision ready.
 - Shadows
 - Point lights without shadows
 - Point lights with shadows (by DarkStarSword)
-- Global specular highlights
-- Specular highlights in point lights without shadows
-
-#####What is not fixed:
-- Specular highlights point lights with shadows
+- Specular highlights
 
 #####Installation:
 - Copy this folder structure into the directory which contains the Risen.exe (should be ./system) so that "DX9Settings.ini" is in the same directory as the .exe. The screenshots directory is not needed.
@@ -28,7 +24,7 @@ However, the zip file does not contain the lastest version of the fix.
 - When starting the game, there are flickering edges in the main menu.
 
 #####Changelog:
-- v0.1: Initial work in progress release
+- v1.0: Initial release
 
 #####Credits:
 - bo3b for explaining the basics of shader fixing

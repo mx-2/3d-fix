@@ -48,8 +48,7 @@
 //     c3   = { 0.01, 0, 0, 0 };
 //
 
-// Point lights with cube mapped shadows
-// Specular ?
+// Point lights with cube mapped shadows and speculat highlights
 
 // c210 - InverseViewProj - from parent VS
 // c214 - ViewProj - from parent VS
@@ -86,8 +85,8 @@ dcl_2d s13
     rcp r0.w, r0.w
     mul r0.z, r0.w, r0.z			// scale depth
     mul r2.xyz, r0.z, r1			// r2 determines clipping planes
-									// r2 is r1 multiplied with scaled depth
-									// -> fix r1 and r2
+    								// r2 is r1 multiplied with scaled depth
+    								// -> fix r1 and r2
 
 // World space correction for shadows:
 mov r20.xyz, r2
@@ -112,9 +111,11 @@ dp4 r2.z, c212, r30
 // Go back and fix r1 as well as it is used throughout the rest of the shader
 // for light placement:
 rcp r30.w, r0.z
-mul r1.xyz, r30.w, r2		// Divide by depth because r2 = r1 * depth
+mul r20.xyz, r30.w, r2		// Divide by depth because r2 = r1 * depth
+nrm r1, r20					// Renormalize after this characteristic mad to fix specular
+mad_pp r3.xyz, r20, -r0.z, v3
 
-    mad_pp r3.xyz, r1, -r0.z, v3
+//    mad_pp r3.xyz, r1, -r0.z, v3
     mov r2.w, c5.x
     dp4 r4.z, r2, v7
     dp4 r4.x, r2, v5
@@ -129,11 +130,8 @@ mul r1.xyz, r30.w, r2		// Divide by depth because r2 = r1 * depth
     texld_pp r4, r4, s3
     mad r4, r4, c5.y, c5.z
     mad r5, r4.xzyz, c3.x, r2.zwzw
-
-    // load shadow layers - cube problems
-
-    texld_pp r6, r5, s4					// sample shadow - a bit darker
-    texld_pp r5, r5.zwzw, s4			// nothing
+    texld_pp r6, r5, s4
+    texld_pp r5, r5.zwzw, s4
     mov_pp r6.y, r5.x
     mad r5, r4.ywzw, c3.x, r2.zwzw
     texld_pp r7, r5, s4
@@ -150,7 +148,6 @@ mul r1.xyz, r30.w, r2		// Divide by depth because r2 = r1 * depth
     mov_pp r4.y, r5.x
     texld_pp r5, r2, s4
     texld_pp r2, r2.zwzw, s4
-
     mov_pp r4.w, r2.x
     mov_pp r4.z, r5.x
     add r2, r0.z, -r4
@@ -178,10 +175,7 @@ mul r1.xyz, r30.w, r2		// Divide by depth because r2 = r1 * depth
     mad_pp r3.xy, r2, c6.z, c6.z
     mad r0.xyz, r3, c4.x, r0.x
     add_pp r1.xyz, r0, c4.y
-    //texld_pp r3, r1.ywzw, s5		// Totaly displaced lighting, related to specular ?
-									// right eye: left of screen, left eye: right of screen
-									// Requires another stereo correction ?
-									// Almost no visual loss visible if disabled.
+    texld_pp r3, r1.ywzw, s5
     mul_pp r0.x, r2.x, r3.w
     texld_pp r2, r1.xwzw, s5
     texld_pp r3, r1.xwzw, s6
