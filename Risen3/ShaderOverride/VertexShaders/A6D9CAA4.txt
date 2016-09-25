@@ -49,15 +49,13 @@
 //     c3   = { 0, 0, 0, 0 };
 //
 
-// c210 - Inverse ViewProj
-
 // Fog, sun and sunrays
 // Full screen overlay
 
     vs_3_0
 // Helix sampler
 dcl_2d s1
-def c200, -60000, 250000, 0.0625, 0.1
+def c200, -60000, 0.5, 0.0625, 0.1
     def c5, -1, 1, 0, 0
     def c6, 2, -2, 0, 0
     dcl_position v0
@@ -65,34 +63,23 @@ def c200, -60000, 250000, 0.0625, 0.1
     dcl_position o0
     dcl_texcoord o1.xy
     dcl_texcoord3 o2.xyz
+
+// Offset screen pos X coordinate to fix
+texldl r31, c200.z, s1		// fix v1 only for o2
+mul r31.w, c200.y, -r31.x	// -0.5 * sep
+mov r29, v1
+add r29.x, r29.x, r31.w
 	
     add o1.xy, c4, v1
-
     mov r0.xyz, c6
-    mad r0, v1.xyxx, r0.xyzz, c5.xyyy
-	
-    //dp4 r1.x, r0, c3
-    //rcp r1.x, r1.x
+    //mad r0, v1.xyxx, r0.xyzz, c5.xyyy
+mad r0, r29.xyxx, r0.xyzz, c5.xyyy
+    dp4 r1.x, r0, c3
+    rcp r1.x, r1.x
     dp4 r2.x, r0, c0
     dp4 r2.y, r0, c1
     dp4 r2.z, r0, c2
-dp4 r2.w, r0, c3
-rcp r1.x, r2.w
-mul r20.xyz, r1.x, r2
-
-
-// Stereo correction formula		
-texldl r31, c200.z, s1
-mul r31.x, r31.x, -c200.y				// Use constant as depth
-
-// Transform correction from screen to world coordinates.
-// This fixes the sun!
-mul r30.x, r31.x, c210.x
-mul r30.y, r31.x, c211.x
-mul r30.z, r31.x, c212.x
-add r20.xz, r20.xz, r30.xz
-mov o2.xyz, r20
-
+	mul o2.xyz, r1.x, r2
     mov o0, v0
 
 // approximately 10 instruction slots used

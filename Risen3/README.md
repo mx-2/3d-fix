@@ -16,7 +16,6 @@ Profile, based on Prototype, fixes a lot of halo issues.
 
 #####What is not fixed:
 - Some far lights / shadows
-- Reflections in puddles and on crystals
 
 #####Disabled effects:
 - Sunrays
@@ -26,7 +25,9 @@ Profile, based on Prototype, fixes a lot of halo issues.
 - Get the HelixMod d3d9.dll from https://s3.amazonaws.com/-HeliX-/DLLS/DllsModPack1.zip (/DLLs/RELEASE/x64/d3d9.dll) and put it in the same directory.
 - Install the Risen 3 profile (see below)
 
-Alternatively download Risen3-3d-fix.7z in the downloads directory. It contains all necessary files. The profile still has to be installed manually.
+Alternatively download Risen3-3d-fix.7z in the downloads directory. It contains all necessary files.
+However, the zip file does not always contain the lastest version of the fix.
+Regardless of the used installation method the profile has to be installed manually.
 
 ######How to install the profile:
 

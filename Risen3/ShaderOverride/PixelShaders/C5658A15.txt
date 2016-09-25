@@ -90,9 +90,11 @@ dp4 r2.z, c212, r30
 // Go back and fix r1 as well as it is used throughout the rest of the shader
 // for light placement:
 rcp r30.w, r0.x
-mul r1.xyz, r30.w, r2		// Divide by depth because r2 = r1 * depth
+mul r20.xyz, r30.w, r2		// Divide by depth because r2 = r1 * depth
+nrm r1, r20					// Renormalize after this characteristic mad to fix specular
+mad_pp r0.xyz, r20, -r0.x, v2
 	
-    mad_pp r0.xyz, r1, -r0.x, v2
+    //mad_pp r0.xyz, r1, -r0.x, v2
     mov r2.w, c2.x
     dp4 r3.x, r2, v4
     dp4 r3.y, r2, v5

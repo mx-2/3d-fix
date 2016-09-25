@@ -33,6 +33,7 @@
 // c210 - Inverse ViewProj - from parent VS
 
 // Point lights - in entrances
+// no specular ?
 
     ps_3_0
 def c200, 1, 0.01, 0.0625, 0.5
