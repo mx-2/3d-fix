@@ -15,7 +15,7 @@ Profile, based on Prototype, fixes a lot of halo issues.
 - Specular highlights
 
 #####What is not fixed:
-- Some far lights / shadows
+- Ambient Occlusion
 
 #####Disabled effects:
 - Sunrays
