@@ -11,14 +11,11 @@ Profile, based on Prototype, fixes a lot of halo issues.
 - Shadows
 - Point lights
 - Sun, clouds
-- Fog (approximate fix)
+- Fog and Sunrays
 - Specular highlights
 
 #####What is not fixed:
 - Ambient Occlusion
-
-#####Disabled effects:
-- Sunrays
 
 #####Installation:
 - Copy this folder structure into the directory which contains the Risen3.exe (should be ./system) so that "DX9Settings.ini" is in the same directory as the .exe. The screenshots directory is not needed.

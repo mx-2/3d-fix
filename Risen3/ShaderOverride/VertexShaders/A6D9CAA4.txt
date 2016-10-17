@@ -63,17 +63,17 @@ def c200, -60000, 0.5, 0.0625, 0.1
     dcl_position o0
     dcl_texcoord o1.xy
     dcl_texcoord3 o2.xyz
+    add o1.xy, c4, v1
+    mov r0.xyz, c6
 
 // Offset screen pos X coordinate to fix
 texldl r31, c200.z, s1		// fix v1 only for o2
 mul r31.w, c200.y, -r31.x	// -0.5 * sep
 mov r29, v1
 add r29.x, r29.x, r31.w
-	
-    add o1.xy, c4, v1
-    mov r0.xyz, c6
     //mad r0, v1.xyxx, r0.xyzz, c5.xyyy
 mad r0, r29.xyxx, r0.xyzz, c5.xyyy
+
     dp4 r1.x, r0, c3
     rcp r1.x, r1.x
     dp4 r2.x, r0, c0
