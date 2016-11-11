@@ -3,6 +3,11 @@
 ##### inverseMatrix.asm
 Shader assembly implementation of the Gauss-Jordan elimination algorithm to calculate the inverse matrix. It utilizes the vector capabilities of the GPU for improved efficiency.
 
+##### inverseMatrix_GL.hlsl
+HLSL implementation of the Gauss-Jordan elimination algorithm to calculate the inverse matrix. It utilizes the vector capabilities of the GPU for improved efficiency.
+
+To use it with 3Dmigoto, #include the hlsl file in your shader and call inverseMatrix_GJ().
+
 ##### shaderVM.py:
 Python script which interprets a shader assembly file and allows to look into the register values during execution. For debugging it uses some special pseudo instructions inside comments.
 
