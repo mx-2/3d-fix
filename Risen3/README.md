@@ -1,12 +1,12 @@
 # Risen 3 3D vision fix
 ========
 
-This work in progress fix aims to make the game "Risen 3" 3D vision ready.
+This fix aims to make the game "Risen 3" 3D vision ready.
 It is only tested with the 64bit version of the game.
 Profile, based on Prototype, fixes a lot of halo issues.
 
 #####What is fixed:
-- HUD moved to depth
+- HUD and crosshair moved to depth
 - Halos
 - Shadows
 - Point lights
@@ -15,7 +15,8 @@ Profile, based on Prototype, fixes a lot of halo issues.
 - Specular highlights
 
 #####What is not fixed:
-- Ambient Occlusion
+- Ambient Occlusion (SSAO, seems to be unfixable)
+  minor issue, can be disabled ingame with F4
 
 #####Installation:
 - Copy this folder structure into the directory which contains the Risen3.exe (should be ./system) so that "DX9Settings.ini" is in the same directory as the .exe. The screenshots directory is not needed.
@@ -25,6 +26,11 @@ Profile, based on Prototype, fixes a lot of halo issues.
 Alternatively download Risen3-3d-fix.7z in the downloads directory. It contains all necessary files.
 However, the zip file does not always contain the lastest version of the fix.
 Regardless of the used installation method the profile has to be installed manually.
+
+#####Configuration:
+HUD and crosshair depth can be configured with constants in DX9Settings.ini.
+In the default configuration, the key '0' cycles between three crosshair depths and
+F4 can be used to disable SSAO which seems to be impossible from ingame options.
 
 ######How to install the profile:
 
@@ -42,7 +48,8 @@ http://nvidia.custhelp.com/app/answers/detail/a_id/2625/kw/Profile
 6. Import the modified profile file.
 
 #####Changelog:
-- v0.1: Initial work in progress release
+- v1.1: Added some missing shaders and added configuration
+- v1.0: Initial release
 
 #####Credits:
 - bo3b for explaining the basics of shader fixing

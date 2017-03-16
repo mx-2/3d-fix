@@ -38,7 +38,6 @@
     vs_3_0
 // Helix sampler
 dcl_2d s1
-//dcl_2d s2
 def c200, 0.75, 0.5, 0.0625, 10000
     def c1, 2, -1, 0, 0
     dcl_position v0
@@ -49,9 +48,7 @@ def c200, 0.75, 0.5, 0.0625, 10000
 mul r0.xy, c0, v0
 mov r0.zw, v0
 texldl r30, c200.z, s1
-//texldl r29, c200.xy, s2
-//mul r29.x, r29.x, c200.w
-mad r0.x, c200.x, r30.x, r0.x		// push to depth
+mad r0.x, c240.w, r30.x, r0.x		// push to depth
 mov o0, r0
 
     //mul o0.xy, c0, v0
