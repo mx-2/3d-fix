@@ -5,8 +5,9 @@ In this repository I'll post all my 3D vision fixes with helixmod and some usefu
 ##### Currently fixed games:
 - Risen
 - Risen 2
+- Risen 3
 - Skyrim (Updated HeliX's fix)
 
 ##### Currently fixes work in progress:
-- Risen 3
+- None
 
