@@ -30,7 +30,7 @@
 //    mov r1.y, (1)
 //    mul c0.xy, r1.xy, c1.xy
 
-// Crosshair
+// Crosshair type 1
 
 // approximately 4 instructions used
 //

@@ -22,7 +22,7 @@
 //     c3   = { 0, 0, 0, 0 };
 //
 
-// HUD texture and font
+// HUD texture, HUD font and crosshair type 2
 
     vs_3_0
 // Helix sampler
@@ -45,7 +45,15 @@ dp4 r0.z, v0, c2
 dp4 r0.w, v0, c3
 
 texldl r30, c200.z, s1
-mad r0.x, c240.x, r30.x, r0.x		// push to depth
+
+mov r30.w, c200.w
+
+if_eq r30.w, c251.x
+	mad r0.x, c240.w, r30.x, r0.x		// push crosshair
+else
+	mad r0.x, c240.x, r30.x, r0.x		// push HUD
+endif
+
 mov o10, r0
 
     mov o8, v1

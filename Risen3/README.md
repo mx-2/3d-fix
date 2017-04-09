@@ -29,7 +29,7 @@ Regardless of the used installation method the profile has to be installed manua
 
 #####Configuration:
 HUD and crosshair depth can be configured with constants in DX9Settings.ini.
-In the default configuration, the key '0' cycles between three crosshair depths and
+In the default configuration, the key 'R' cycles between three crosshair depths and
 F4 can be used to disable SSAO which seems to be impossible from ingame options.
 
 ######How to install the profile:
@@ -48,6 +48,8 @@ http://nvidia.custhelp.com/app/answers/detail/a_id/2625/kw/Profile
 6. Import the modified profile file.
 
 #####Changelog:
+- v1.3: Added spell crosshair correction and changed default crosshair depth key to 'R'
+- v1.2: Added missing crosshair correction
 - v1.1: Added some missing shaders and added configuration
 - v1.0: Initial release
 
