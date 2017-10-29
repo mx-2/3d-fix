@@ -1,0 +1,115 @@
+// Near Shadows from sun
+
+cbuffer _Globals : register(b0)
+{
+  float3 LightDir : packoffset(c0);
+  float4x4 ShadowVolumeTransform : packoffset(c1);
+  float4 Unproject : packoffset(c5);
+  float4x4 EyeToLightSpace : packoffset(c6);
+  float2 CascadeShadowSettings : packoffset(c10);
+  float CascadeIndex : packoffset(c10.z);
+  float CascadeShadowMapSize : packoffset(c10.w);
+  float2 RcpDeferredShadowMapSize : packoffset(c11);
+}
+
+SamplerComparisonState SmpLessClampLinear_s : register(s0);
+Texture2D<float> LinearDepth : register(t0);
+Texture2DArray<float> CascadeShadowMap : register(t1);
+
+
+// 3Dmigoto declarations
+#define cmp -
+Texture1D<float4> IniParams : register(t120);
+Texture2D<float4> StereoParams : register(t125);
+
+
+void main(
+  float4 v0 : SV_Position0,
+  out float o0 : SV_Target0)
+{
+  float4 r0,r1,r2,r3,r4,r5,r6,r7,r8;
+  uint4 bitmask, uiDest;
+  float4 fDest;
+
+  r0.xy = (int2)v0.xy;
+  r0.zw = float2(0,0);
+  r0.z = LinearDepth.Load(r0.xyz).x;
+  r1.xy = v0.xy * Unproject.xy + Unproject.zw;
+
+// Approximate offset and scale constants, this is far from perfect
+float4 stereo = StereoParams.Load(0);
+float scale = 105;
+float offset = 0.98 - stereo.y * 0.00333333;
+r1.x -= stereo.x * (r0.z * scale + offset);
+
+  r0.xy = r1.xy * r0.zz;
+  r0.w = 1;
+  r1.x = dot(r0.xyzw, EyeToLightSpace._m00_m10_m20_m30);
+  r1.y = dot(r0.xyzw, EyeToLightSpace._m01_m11_m21_m31);
+  r0.x = dot(r0.xyzw, EyeToLightSpace._m02_m12_m22_m32);
+  r0.x = -CascadeShadowSettings.x + r0.x;
+  r0.yz = r1.xy * CascadeShadowMapSize + float2(0.5,0.5);
+  r1.xy = floor(r0.yz);
+  r0.yz = -r1.xy + r0.yz;
+  r1.xy = float2(-0.5,-0.5) + r1.xy;
+  r1.zw = -r0.zy * float2(3,3) + float2(4,4);
+  r2.xy = r0.yz * float2(3,3) + float2(1,1);
+  r2.zw = r2.xy * r1.zw;
+  r0.w = r1.w * r1.z;
+  r3.xy = float2(7,7) * r1.zw;
+  r4.z = CascadeIndex;
+  r3.zw = -r0.yz * float2(2,2) + float2(3,3);
+  r1.zw = r3.zw / r1.wz;
+  r5.xw = float2(-2,-2) + r1.zw;
+  r1.zw = float2(3,3) + r0.yz;
+  r0.yz = r0.yz / r2.xy;
+  r6.xy = float2(2,2) + r0.yz;
+  r5.yz = float2(0.142857149,0.142857149) * r1.wz;
+  r0.y = 1 / CascadeShadowMapSize;
+  r7.xyzw = r5.xwzw * r0.yyyy;
+  r4.xy = r1.xy * r0.yy + r7.zw;
+  r7.xy = r1.xy * r0.yy + r7.xy;
+  r0.z = CascadeShadowMap.SampleCmpLevelZero(SmpLessClampLinear_s, r4.xyz, r0.x).x;
+  r0.z = r3.x * r0.z;
+  r7.z = CascadeIndex;
+  r1.z = CascadeShadowMap.SampleCmpLevelZero(SmpLessClampLinear_s, r7.xyz, r0.x).x;
+  r0.z = r0.w * r1.z + r0.z;
+  r4.z = CascadeIndex;
+  r6.zw = r5.wy;
+  r7.xyzw = r6.xzxw * r0.yyyy;
+  r4.xy = r1.xy * r0.yy + r7.xy;
+  r7.xy = r1.xy * r0.yy + r7.zw;
+  r0.w = CascadeShadowMap.SampleCmpLevelZero(SmpLessClampLinear_s, r4.xyz, r0.x).x;
+  r0.z = r2.z * r0.w + r0.z;
+  r4.xyzw = r5.xyzy * r0.yyyy;
+  r8.xy = r1.xy * r0.yy + r4.xy;
+  r4.xy = r1.xy * r0.yy + r4.zw;
+  r8.z = CascadeIndex;
+  r0.w = CascadeShadowMap.SampleCmpLevelZero(SmpLessClampLinear_s, r8.xyz, r0.x).x;
+  r0.z = r3.y * r0.w + r0.z;
+  r4.z = CascadeIndex;
+  r0.w = CascadeShadowMap.SampleCmpLevelZero(SmpLessClampLinear_s, r4.xyz, r0.x).x;
+  r0.z = r0.w * 49 + r0.z;
+  r1.zw = float2(7,7) * r2.xy;
+  r0.w = r2.x * r2.y;
+  r7.z = CascadeIndex;
+  r2.x = CascadeShadowMap.SampleCmpLevelZero(SmpLessClampLinear_s, r7.xyz, r0.x).x;
+  r0.z = r1.z * r2.x + r0.z;
+  r5.y = r6.y;
+  r3.xyzw = r5.xyzy * r0.yyyy;
+  r2.xy = r1.xy * r0.yy + r3.xy;
+  r3.xy = r1.xy * r0.yy + r3.zw;
+  r1.xy = r1.xy * r0.yy;
+  r1.xy = r6.xy * r0.yy + r1.xy;
+  r2.z = CascadeIndex;
+  r0.y = CascadeShadowMap.SampleCmpLevelZero(SmpLessClampLinear_s, r2.xyz, r0.x).x;
+  r0.y = r2.w * r0.y + r0.z;
+  r3.z = CascadeIndex;
+  r0.z = CascadeShadowMap.SampleCmpLevelZero(SmpLessClampLinear_s, r3.xyz, r0.x).x;
+  r0.y = r1.w * r0.z + r0.y;
+  r1.z = CascadeIndex;
+  r0.x = CascadeShadowMap.SampleCmpLevelZero(SmpLessClampLinear_s, r1.xyz, r0.x).x;
+  r0.x = r0.w * r0.x + r0.y;
+  o0.x = 0.0069444445 * r0.x;
+  return;
+}

@@ -1,0 +1,64 @@
+// Coarse blurry shadows
+
+cbuffer _Globals : register(b0)
+{
+  float3 LightDir : packoffset(c0);
+  float4x4 ShadowVolumeTransform : packoffset(c1);
+  float4 Unproject : packoffset(c5);
+  float4x4 EyeToLightSpace : packoffset(c6);
+  float2 CascadeShadowSettings : packoffset(c10);
+  float CascadeIndex : packoffset(c10.z);
+  float CascadeShadowMapSize : packoffset(c10.w);
+  float2 RcpDeferredShadowMapSize : packoffset(c11);
+}
+
+SamplerState SmpClampLin_s : register(s0);
+Texture2D<float> LinearDepth : register(t0);
+Texture2DArray<float2> VarianceShadowMap : register(t1);
+
+
+// 3Dmigoto declarations
+#define cmp -
+Texture1D<float4> IniParams : register(t120);
+Texture2D<float4> StereoParams : register(t125);
+
+
+void main(
+  float4 v0 : SV_Position0,
+  out float2 o0 : SV_Target0)
+{
+  float4 r0,r1,r2;
+  uint4 bitmask, uiDest;
+  float4 fDest;
+
+  r0.z = CascadeIndex;
+  r1.xy = (int2)v0.xy;
+  r1.zw = float2(0,0);
+  r1.z = LinearDepth.Load(r1.xyz).x;
+  r2.xy = v0.xy * Unproject.xy + Unproject.zw;
+
+// Approximate offset and scale constants, this is far from perfect
+float4 stereo = StereoParams.Load(0);
+float scale = 20;
+float offset = 1.01 - stereo.y * 0.00333333;
+r2.x -= stereo.x * (r1.z * scale + offset);
+
+  r1.xy = r2.xy * r1.zz;
+  r1.w = 1;
+  r0.x = dot(r1.xyzw, EyeToLightSpace._m00_m10_m20_m30);
+  r0.y = dot(r1.xyzw, EyeToLightSpace._m01_m11_m21_m31);
+  r0.w = dot(r1.xyzw, EyeToLightSpace._m02_m12_m22_m32);
+  r0.xy = VarianceShadowMap.SampleLevel(SmpClampLin_s, r0.xyz, 0).xy;
+  r0.z = r0.x + -r0.w;
+  r0.w = cmp(r0.x >= r0.w);
+  r0.x = saturate(-r0.x * r0.x + r0.y);
+  r0.x = 9.99999975e-06 + r0.x;
+  r0.x = min(1, r0.x);
+  r0.y = r0.w ? 1.000000 : 0;
+  r0.z = r0.z * r0.z + r0.x;
+  r0.x = r0.x / r0.z;
+  r0.x = -0.699999988 + r0.x;
+  r0.x = saturate(3.33333325 * r0.x);
+  o0.xy = max(r0.xx, r0.yy);
+  return;
+}
