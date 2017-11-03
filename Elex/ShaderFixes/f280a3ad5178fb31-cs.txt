@@ -48,7 +48,7 @@ dcl_input vThreadIDInGroup.xy
 dcl_thread_group 8, 8, 1
 	dcl_resource_texture1d (float,float,float,float) t120	// ini params
 	dcl_resource_texture2d (float,float,float,float) t125	// stereo
-	dcl_temps 25
+	dcl_temps 26
 
 ld_indexable(buffer)(uint,uint,uint,uint) r0.x, l(1, 1, 1, 1), t0.xyzw
 iadd r0.x, r0.x, vThreadGroupID.x

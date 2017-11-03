@@ -44,11 +44,10 @@ dcl_resource_buffer (float,float,float,float) t25
 dcl_uav_typed_texture2d (float,float,float,float) u0
 dcl_input vThreadGroupID.x
 dcl_input vThreadIDInGroup.xy
-//dcl_temps 27
+dcl_temps 27
 dcl_thread_group 8, 8, 1
 	dcl_resource_texture1d (float,float,float,float) t120	// ini params
 	dcl_resource_texture2d (float,float,float,float) t125	// stereo
-	dcl_temps 28
 
 ld_indexable(buffer)(uint,uint,uint,uint) r0.x, l(3, 3, 3, 3), t0.xyzw
 iadd r0.x, r0.x, vThreadGroupID.x
@@ -63,21 +62,27 @@ utof r1.yz, r0.xxyx
 mad r2.xy, r1.yzyy, cb0[0].xyxx, cb0[0].zwzz
 mov r2.zw, l(0,0,1.000000,1.000000)
 
-	// Fix near point light shadows
-	// needs fudge constants similar to sun shadows,
-	// creates some artifacts and clipping issues
-	ld_indexable(texture2d)(float,float,float,float) r27.xyzw, l(0, 0, 0, 0), t125.xyzw
-	mul r27.w, r1.x, l(0.00010)
-	add r27.w, r27.w, l(0.98)
-	mul r27.y, r27.y, l(0.00333333)
-	add r27.z, r27.w, -r27.y
-	mul r27.z, r27.z, -r27.x
-	add r2.x, r2.x, r27.z
+	// Fix point light shadows:
+	ld_indexable(texture2d)(float,float,float,float) r24.xyzw, l(0, 0, 0, 0), t125.xyzw
+	// Move scaling before matrix transformation
+	mul r25.xyz, r1.xxxx, r2.xyzx
+	// Apply fix
+	add r24.w, r1.x, -r24.y
+	mul r24.w, r24.w, r24.x
+	add r25.x, r25.x, -r24.w
+	// Matrix transformation without scaling
+	dp3 r2.x, r25.xyzx, cb0[1].xyzx
+	dp3 r2.y, r25.xyzx, cb0[2].xyzx
+	dp3 r2.z, r25.xyzx, cb0[3].xyzx
+	// Fix r3 as well as it is used later
+	rcp r25.w, r1.x
+	mul r3.xyz, r2.xyz, r25.w
 
-dp3 r3.x, r2.xyzx, cb0[1].xyzx
-dp3 r3.y, r2.xyzx, cb0[2].xyzx
-dp3 r3.z, r2.xyzx, cb0[3].xyzx
-mul r2.xyz, r1.xxxx, r3.xyzx
+//dp3 r3.x, r2.xyzx, cb0[1].xyzx
+//dp3 r3.y, r2.xyzx, cb0[2].xyzx
+//dp3 r3.z, r2.xyzx, cb0[3].xyzx
+//mul r2.xyz, r1.xxxx, r3.xyzx
+
 ld_indexable(texture2d)(uint,uint,uint,uint) r4.xyz, r0.xyww, t5.xyzw
 ld_indexable(texture2d)(float,float,float,float) r5.xyzw, r0.xyww, t3.xyzw
 ld_indexable(texture2d)(float,float,float,float) r6.xyz, r0.xyww, t4.xyzw

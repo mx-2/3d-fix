@@ -64,21 +64,27 @@ if_z r1.w
   mad r3.xy, r2.xyxx, cb0[0].xyxx, cb0[0].zwzz
   mov r3.zw, l(0,0,1.000000,1.000000)
 
-	// Fix near point light shadows
-	// needs fudge constants similar to sun shadows,
-	// creates some artifacts and clipping issues
+	// Fix point light shadows:
 	ld_indexable(texture2d)(float,float,float,float) r24.xyzw, l(0, 0, 0, 0), t125.xyzw
-	mul r24.w, r0.x, l(0.00010)
-	add r24.w, r24.w, l(0.98)
-	mul r24.y, r24.y, l(0.00333333)
-	add r24.z, r24.w, -r24.y
-	mul r24.z, r24.z, -r24.x
-	add r3.x, r3.x, r24.z
+	// Move scaling before matrix transformation
+	mul r25.xyz, r1.wwww, r3.xyzx
+	// Apply fix
+	add r24.w, r1.w, -r24.y
+	mul r24.w, r24.w, r24.x
+	add r25.x, r25.x, -r24.w
+	// Matrix transformation without scaling
+	dp3 r3.x, r25.xyzx, cb0[1].xyzx
+	dp3 r3.y, r25.xyzx, cb0[2].xyzx
+	dp3 r3.z, r25.xyzx, cb0[3].xyzx
+	// Fix r3 as well as it is used later
+	rcp r25.w, r1.w
+	mul r4.xyz, r3.xyz, r25.w
 
-  dp3 r4.x, r3.xyzx, cb0[1].xyzx
-  dp3 r4.y, r3.xyzx, cb0[2].xyzx
-  dp3 r4.z, r3.xyzx, cb0[3].xyzx
-  mul r3.xyz, r1.wwww, r4.xyzx
+  //dp3 r4.x, r3.xyzx, cb0[1].xyzx
+  //dp3 r4.y, r3.xyzx, cb0[2].xyzx
+  //dp3 r4.z, r3.xyzx, cb0[3].xyzx
+  //mul r3.xyz, r1.wwww, r4.xyzx
+
   ld_indexable(texture2d)(float,float,float,float) r5.xyzw, r0.xyww, t3.xyzw
   ld_indexable(texture2d)(float,float,float,float) r6.xyz, r0.xyww, t4.xyzw
   mad r6.xyz, r6.xyzx, l(2.000000, 2.000000, 2.000000, 0.000000), l(-1.000000, -1.000000, -1.000000, 0.000000)

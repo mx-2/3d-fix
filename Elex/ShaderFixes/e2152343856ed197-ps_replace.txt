@@ -12,6 +12,46 @@ cbuffer _Globals : register(b0)
   float2 RcpDeferredShadowMapSize : packoffset(c11);
 }
 
+// Copied in with 3Dmigoto
+cbuffer _CommonMatrices : register(b1)
+{
+  float4x4 m_matViewProjection;
+  float4x4 m_matInvProjection;
+  float4x4 m_matProjection;
+  float4x4 m_matView;
+  float4x4 m_matCameraViewProjection;
+  float4x4 m_matCameraProjection;
+  float4 m_frustumPlanes[6];
+  float3 m_vecCamPos;
+  float m_fFar;
+  float3 m_vecWorldCamPos;
+  float m_fRcpFar;
+  float3 m_vecRenderOffset;
+  float m_fNear;
+  float3 m_vecCamDir;
+  float m_fExposure;
+  float2 m_vecViewPortSize;
+  float2 m_vecRcpViewPortSize;
+  float2 m_vecDistortionScale;
+  float m_fFoV;
+  float _padding0;
+  float m_fCamAzimuth;
+  float m_fTime;
+  float m_fFrameTime;
+  float m_fAdaptiveTessellationFactor;
+  float2 m_vecMiePhaseConstants;
+  float m_fOceanWaterLevel;
+  float m_fRenderOffsetOceanWaterLevel;
+  float4 m_vecOceanColorAndOpacity;
+  float2 m_vecOceanTexCoordScale;
+  float2 m_vecRcpOceanTexCoordScale;
+  float m_fWeatherTemperature;
+  float2 m_vecZToDepth;
+  float _padding1;
+  float3 m_vecSunDir;
+  float _padding2;
+}
+
 SamplerComparisonState SmpLessClampLinear_s : register(s0);
 Texture2D<float> LinearDepth : register(t0);
 Texture2DArray<float> CascadeShadowMap : register(t1);
@@ -35,14 +75,12 @@ void main(
   r0.zw = float2(0,0);
   r0.z = LinearDepth.Load(r0.xyz).x;
   r1.xy = v0.xy * Unproject.xy + Unproject.zw;
-
-// Approximate offset and scale constants, this is far from perfect
-float4 stereo = StereoParams.Load(0);
-float scale = 105;
-float offset = 0.98 - stereo.y * 0.00333333;
-r1.x -= stereo.x * (r0.z * scale + offset);
-
   r0.xy = r1.xy * r0.zz;
+
+// Fix shadows
+float4 stereo = StereoParams.Load(0);
+r0.x -= stereo.x * (r0.z - stereo.y / m_fFar) * m_matInvProjection._m00;
+
   r0.w = 1;
   r1.x = dot(r0.xyzw, EyeToLightSpace._m00_m10_m20_m30);
   r1.y = dot(r0.xyzw, EyeToLightSpace._m01_m11_m21_m31);
