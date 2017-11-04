@@ -1,0 +1,67 @@
+// Clouds
+
+cbuffer _Globals : register(b0)
+{
+  float2 DepthTextureSize : packoffset(c0);
+  float4x4 ReprojectEye : packoffset(c1);
+  float3 CamPosInMeter : packoffset(c5);
+  float3 CamDir100 : packoffset(c6);
+  float2 NearFar : packoffset(c7);
+  float3 LightDir : packoffset(c8);
+  float4 CloudBiasAndScale : packoffset(c9);
+  float CloudCover : packoffset(c10);
+  float CloudType : packoffset(c10.y);
+  float CloudShadowMultiplier : packoffset(c10.z);
+  float3 CloudColorSun : packoffset(c11);
+  float3 CloudColorAmbient : packoffset(c12);
+  float CloudExtinction50 : packoffset(c12.w);
+  float4 CloudDirLightSamples6[6] : packoffset(c13);
+  float4 CloudDirLightSamples3[3] : packoffset(c19);
+  float Exposure : packoffset(c22);
+  float4 FogDepthToSliceParams : packoffset(c23);
+  float Time : packoffset(c24);
+  float2 RcpCloudShadowMapSize : packoffset(c24.y);
+  int2 CloudTextureSize : packoffset(c25);
+  float4x4 SliceViewProjections[16] : packoffset(c26);
+  float4 SliceOffset[16] : packoffset(c90);
+  uint CurrentSliceIndex : packoffset(c106);
+  float4 PixelToClipSpace : packoffset(c107);
+}
+
+
+
+// 3Dmigoto declarations
+#define cmp -
+Texture1D<float4> IniParams : register(t120);
+Texture2D<float4> StereoParams : register(t125);
+
+
+void main(
+  float4 v0 : POSITION0,
+  float2 v1 : TEXCOORD0,
+  out float4 o0 : SV_Position0,
+  out float2 o1 : TEXCOORD0,
+  out float3 o2 : EYE0)
+{
+  float4 r0,r1;
+  uint4 bitmask, uiDest;
+  float4 fDest;
+
+  o0.xyw = v0.xyw;
+  o0.z = 1;
+  o1.xy = v1.xy;
+  r0.xy = v1.xy * float2(2,-2) + float2(-1,1);
+  r0.z = 1;
+
+// o2 looks like world coordinate system on screen depth
+// this must pushed to infinity to fix the sky - same as in Risen 3
+float4 stereo = StereoParams.Load(0);
+r0.x -= stereo.x;
+
+  r1.x = dot(r0.xyz, ReprojectEye._m00_m10_m30);
+  r1.y = dot(r0.xyz, ReprojectEye._m01_m11_m31);
+  r1.z = dot(r0.xyz, ReprojectEye._m02_m12_m32);
+  r0.x = dot(r0.xyz, ReprojectEye._m03_m13_m33);
+  o2.xyz = r1.xyz / r0.xxx;
+  return;
+}
