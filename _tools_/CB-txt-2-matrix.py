@@ -66,7 +66,7 @@ except:
 	sys.exit(2)
 
 # Extract values from raw data
-regexCB = re.compile(r"cb[0-9]*?\[[0-9]*?\]\.[xyzw]: (\-?[0-9\.]*).*$", re.DOTALL)
+regexCB = re.compile(r"cb[0-9]*?\[[0-9]*?\]\.[xyzw]: (\-?[0-9\.]*e?-?[0-9]*).*$", re.DOTALL)
 lines = [regexCB.sub("\\1", x) for x in lines]
 
 # Perpare map file
