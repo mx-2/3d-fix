@@ -1,9 +1,9 @@
-// Decals - graffities
-Texture2D<float4> t28 : register(t28);	// decal texture
+// Decals - dark spots
+Texture2D<float4> t28 : register(t28);
 
-Texture2D<float4> t2 : register(t2);	// white and transparent
+Texture2D<float4> t2 : register(t2);
 
-Texture2D<float4> t0 : register(t0);	// Depth, correct
+Texture2D<float4> t0 : register(t0);
 
 SamplerState s6_s : register(s6);
 
@@ -12,14 +12,9 @@ cbuffer cb1 : register(b1)
   float4 cb1[2560];
 }
 
-cbuffer cb0 : register(b0)
-{
-  float4 cb0[34];
-}
-
 cbuffer cb2 : register(b2)
 {
-  float4 cb2[5];
+  float4 cb2[1];
 }
 
 // Copied in with 3Dmigoto
@@ -70,15 +65,15 @@ cbuffer _CommonMatrices : register(b3)
 Texture1D<float4> IniParams : register(t120);
 Texture2D<float4> StereoParams : register(t125);
 
-// This PS draws to wrong pos
+
 void main(
   float3 v0 : WORLDPOS0,
-  nointerpolation uint v1 : DOMAINDATA0,	// instance id
+  nointerpolation uint v1 : DOMAINDATA0,
   float4 v2 : SV_Position0,
   uint v3 : SV_IsFrontFace0,
   out float4 o0 : SV_Target0,
-  out float4 o2 : SV_Target2,
-  out float4 o4 : SV_Target4)
+  out float4 o1 : SV_Target1,
+  out float4 o2 : SV_Target2)
 {
   float4 r0,r1,r2,r3,r4,r5,r6,r7;
   uint4 bitmask, uiDest;
@@ -124,78 +119,69 @@ r3.xyzw = r3.xyzw / r3.w; // renormalize
 tmp.xy = (r3.xy - cb1[r1.y+8].zw) / cb1[r1.y+8].xy;
 
   r4.xyz = saturate(r3.xyz);
-  r3.xyw = cmp(r3.xyz != r4.xyz);
-  r1.z = (int)r3.x | (int)r3.y | (int)r3.w;
+  r3.xyz = cmp(r3.xyz != r4.xyz);
+  r1.z = (int)r3.y | (int)r3.x;
+  r1.z = (int)r3.z | (int)r1.z;
   if (r1.z != 0) discard;
-
   r0.xyz = t2.Load(r0.xyz).xyz;
   r0.xyz = r0.xyz * float3(2,2,2) + float3(-1,-1,-1);
   r0.w = dot(r0.xyz, r0.xyz);
   r0.w = rsqrt(r0.w);
   r0.xyz = r0.xyz * r0.www;
-  r4.x = -cb1[r1.y+0].z;
-  r4.y = -cb1[r1.y+1].z;
-  r4.z = -cb1[r1.y+2].z;
-  r0.w = dot(r4.xyz, r4.xyz);
+  r3.x = -cb1[r1.y+0].z;
+  r3.y = -cb1[r1.y+1].z;
+  r3.z = -cb1[r1.y+2].z;
+  r0.w = dot(r3.xyz, r3.xyz);
   r0.w = rsqrt(r0.w);
-  r3.xyw = r4.xyz * r0.www;
-  r0.w = saturate(dot(r0.xyz, r3.xyw));
-  r0.w = cb1[r1.y+9].w * r0.w;
-  r1.z = saturate(-r3.z * 2 + 2);
-  r0.w = r1.z * r0.w;
+  r3.xyz = r3.xyz * r0.www;
+  r0.x = saturate(dot(r0.xyz, r3.xyz));
+  r0.x = cb1[r1.y+9].w * r0.x;
   r3.xy = (int2)v2.xy;
   r3.zw = float2(0,0);
   r4.z = t0.Load(r3.xyw, int3(0, 0, 0)).x;
   r5.z = t0.Load(r3.xyw, int3(0, 0, 0)).x;
-  r1.z = r4.z + -r1.x;
-  r1.w = r5.z + -r1.x;
-  r1.z = cmp(abs(r1.z) < abs(r1.w));
+  r0.y = r4.z + -r1.x;
+  r0.z = r5.z + -r1.x;
+  r0.y = cmp(abs(r0.y) < abs(r0.z));
   r6.xyzw = trunc(v2.xyxy);
   r6.xyzw = float4(-1,0,1,0) + r6.xyzw;
   r4.xy = r6.xy;
   r5.xy = r6.zw;
-  r6.xyz = r1.zzz ? r4.xyz : r5.xyz;
+  r6.xyz = r0.yyy ? r4.xyz : r5.xyz;
   r6.z = 1 / r6.z;
   r6.w = 1;
   r7.x = dot(r6.xyzw, cb1[r1.y+4].xyzw);
   r7.y = dot(r6.xyzw, cb1[r1.y+5].xyzw);
-  r1.z = dot(r6.xyzw, cb1[r1.y+7].xyzw);
-  r1.zw = r7.xy / r1.zz;
+  r0.y = dot(r6.xyzw, cb1[r1.y+7].xyzw);
+  r0.yz = r7.xy / r0.yy;
+  r0.yz = r2.xy + -r0.yz;
   r4.w = t0.Load(r3.xyw, int3(0, 0, 0)).x;
   r5.w = t0.Load(r3.xyz, int3(0, 0, 0)).x;
-  r2.z = r4.w + -r1.x;
+  r0.w = r4.w + -r1.x;
   r1.x = r5.w + -r1.x;
-  r1.x = cmp(abs(r2.z) < abs(r1.x));
-  r3.xyz = r1.xxx ? r4.xyw : r5.xyw;
+  r0.w = cmp(abs(r0.w) < abs(r1.x));
+  r3.xyz = r0.www ? r4.xyw : r5.xyw;
   r3.z = 1 / r3.z;
   r3.w = 1;
   r4.x = dot(r3.xyzw, cb1[r1.y+4].xyzw);
   r4.y = dot(r3.xyzw, cb1[r1.y+5].xyzw);
-  r1.x = dot(r3.xyzw, cb1[r1.y+7].xyzw);
-  r1.xy = r4.xy / r1.xx;
-  r1.xyzw = r2.xyxy + -r1.xyzw;
+  r0.w = dot(r3.xyzw, cb1[r1.y+7].xyzw);
+  r1.xy = r4.xy / r0.ww;
+  r1.xy = r2.xy + -r1.xy;
 
 // Adjust texcoord
 r2.xy = tmp.xy;
 
-  r1.xyzw = t28.SampleGrad(s6_s, r2.xy, r1.zwzz, r1.xyxx).xyzw;
-  o0.xyz = cb2[0].xyz * r1.xyz;
-  r1.xyz = cb2[1].xxx * r1.xyz;
-  r2.xyz = ddx_coarse(r0.xyz);
-  r0.xyz = ddy_coarse(r0.xyz);
-  r2.x = dot(r2.xyz, r2.xyz);
-  r0.x = dot(r0.xyz, r0.xyz);
-  r0.x = r2.x + r0.x;
-  r0.x = 0.5 * r0.x;
-  r0.x = min(0.180000007, r0.x);
-  r0.x = sqrt(r0.x);
-  o2.x = saturate(cb2[2].x + r0.x);
-  r0.x = r1.w * r0.w;
-  o4.xyz = cb0[33].www * r1.xyz;
-  o0.w = r0.x;
-  o2.y = cb2[4].x;
-  o2.z = cb2[3].x;
-  o2.w = r0.x;
-  o4.w = r0.x;
+  r0.y = t28.SampleGrad(s6_s, r2.xy, r0.z, r1.y).x;
+  r0.y = cb2[0].x * r0.y;
+  r0.z = r0.x * r0.y;
+  r0.z = saturate(2.85714293 * r0.z);
+  o0.xyz = r0.zzz * float3(-0.649999976,-0.649999976,-0.649999976) + float3(1,1,1);
+  r0.xy = r0.xx * r0.yy + float2(-0.449999988,-0.200000003);
+  o1.w = saturate(r0.x + r0.x);
+  o2.w = saturate(1.25 * r0.y);
+  o0.w = 0;
+  o1.xyz = float3(0.5,1,0.5);
+  o2.xyz = float3(0.100000001,0.354000002,0);
   return;
 }
