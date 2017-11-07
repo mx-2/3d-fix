@@ -1,21 +1,28 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # This python script extracts all constants and matrices 
 # from a 3Dmigoto constant buffer dump and converts them to
 # an Octave .m file
 #
 # For the mapping between the raw CB output and the named
-# objects in the -m file a map file is used. This map file
+# objects in the .m file a map file is used. This map file
 # just contains all objects in the same format as in HLSL
 # or ASM shaders dumped from 3Dmigoto so they can simply
 # copied over.
 #
+# If the map file is shorter than the input data, the map
+# file will repeated.
+#
 # Example for a very simple map file:
+#   # This is a comment
 #   float4x4 matrix2;
 #   float3 some_data[2];
+#   # ignore 3 32bit words of data
+#   IGNORE ignore_data[3];
 #   ... 
 #
 
+import argparse
 import re
 import sys
 
@@ -30,7 +37,10 @@ def writeMatrix(dst, name, x, y, data, pos):
 	for i in range(0, count):
 		if i != 0 and (i % x) != 0:
 			dst.write(", ")
-		dst.write(data[pos+i])
+		try:
+			dst.write(data[pos+i])
+		except IndexError:
+			dst.write("NaN")
 		if i != 0 and (i % x) == x-1 and i != count-1:
 			dst.write("; ...\n  ")
 	dst.write(" ];\n")
@@ -38,17 +48,26 @@ def writeMatrix(dst, name, x, y, data, pos):
 	if y != 1:
 		dst.write("\n")
 
-# Get filenames from arguments.
-try:
-	inputFilename =  sys.argv[1]
-	outputFilename = sys.argv[2]
-	mapFilename = sys.argv[3]
-except:
-	print("Error: Invalid argument count!")
-	print("Usage: CB-txt-2-m.py 'input_txt_file' 'output_m_file' 'map_file'")
-	sys.exit(1)
+# Analyze command line
+parser = argparse.ArgumentParser(description="Constant buffer to matrix converter.")
+parser.add_argument("--input", help="Input dump txt file", required=True)
+parser.add_argument("--output", help="Output .m file", required=True)
+parser.add_argument("--map", help="Input map file", required=True)
+parser.add_argument("--prefix", help="Name prefix to be added to all names")
+args = vars(parser.parse_args())
+
+if args["input"] != None:
+	inputFilename = args["input"]
+if args["output"] != None:
+	outputFilename = args["output"]
+if args["map"] != None:
+	mapFilename = args["map"]
+if args["prefix"] != None:
+	prefix = args["prefix"]
+else:
+	prefix = ""
 	
-print("Converting constant buffer...\n")
+print("Converting constant buffer...")
 
 # Open files and read strings.
 try:
@@ -70,7 +89,11 @@ regexCB = re.compile(r"cb[0-9]*?\[[0-9]*?\]\.[xyzw]: (\-?[0-9\.]*e?-?[0-9]*).*$"
 lines = [regexCB.sub("\\1", x) for x in lines]
 
 # Perpare map file
-regexMap = re.compile(r"\/{0,2}[ \t]*?(float[234x]{0,3}) ([a-zA-Z0-9_]*)(\[?[0-9]*?\]?)( : packoffset\(.*\))?;.*$", re.DOTALL)
+cbmap = list(filter(lambda a: a != "\n", cbmap))
+cbmap = list(filter(lambda a: not a.startswith("#"), cbmap))
+regexMap = re.compile((
+	r"\/{0,2}[ \t]*?(float[234x]{0,3}) "
+	r"([a-zA-Z0-9_]*)(\[?[0-9]*?\]?)( : packoffset\(.*\))?;.*$"), re.DOTALL)
 cbmap = [regexMap.sub("\\1\\3 \\2", x) for x in cbmap]
 
 # Get multiplicities
@@ -85,21 +108,33 @@ for x in cbmap:
 		x.insert(1, "1")
 
 # Process data
-pos = 0;
-for x in cbmap:
-	if x[0] == "float":
-		writeMatrix(outputFile, x[2], 1, int(x[1]), lines, pos)
-		pos += 1 * int(x[1])
-	elif x[0] == "float2":
-		writeMatrix(outputFile, x[2], 2, int(x[1]), lines, pos)
-		pos += 2 * int(x[1])
-	elif x[0] == "float3":
-		writeMatrix(outputFile, x[2], 3, int(x[1]), lines, pos)
-		pos += 3 * int(x[1])
-	elif x[0] == "float4":
-		writeMatrix(outputFile, x[2], 4, int(x[1]), lines, pos)
-		pos += 4 * int(x[1])
-	else:
-		print("Error: Unknown type " + x[0] + "!")
-		sys.exit(3)
+pos = 0
+loop = 0
+while pos < len(lines):
+	for i,x in enumerate(cbmap):
+		if pos >= len(lines):
+			break
+
+		name = prefix + x[2]
+		if loop > 0:
+			name += "_" + str(loop)
+
+		if x[0] == "float":
+			writeMatrix(outputFile, name, 1, int(x[1]), lines, pos)
+			pos += 1 * int(x[1])
+		elif x[0] == "float2":
+			writeMatrix(outputFile, name, 2, int(x[1]), lines, pos)
+			pos += 2 * int(x[1])
+		elif x[0] == "float3":
+			writeMatrix(outputFile, name, 3, int(x[1]), lines, pos)
+			pos += 3 * int(x[1])
+		elif x[0] == "float4":
+			writeMatrix(outputFile, name, 4, int(x[1]), lines, pos)
+			pos += 4 * int(x[1])
+		elif x[0] == "IGNORE":
+			pos += 1 * int(x[1])
+		else:
+			print("Error: Unknown type " + x[0] + "!")
+			sys.exit(3)
+	loop += 1
 
