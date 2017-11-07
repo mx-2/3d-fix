@@ -31,8 +31,8 @@ dcl_resource_texture2d (uint,uint,uint,uint) t5			// transparent/white
 // unused t6 - masks players head and foliage
 dcl_resource_texture2d (float,float,float,float) t7		// sun light and shadows
 dcl_resource_texture2d (float,float,float,float) t8		// black
-dcl_resource_texture3d (uint,uint,uint,uint) t10
-dcl_resource_buffer (uint,uint,uint,uint) t11
+dcl_resource_texture3d (uint,uint,uint,uint) t10		// tiles
+dcl_resource_buffer (uint,uint,uint,uint) t11			// light list
 dcl_resource_texture2d (float,float,float,float) t12	// some kind of gradient, mono
 // unused t13 - shadow map
 dcl_resource_texture2d (float,float,float,float) t15
@@ -65,21 +65,27 @@ utof r1.yz, r0.xxyx			// Thread ID to float
 mad r2.xy, r1.yzyy, cb0[0].xyxx, cb0[0].zwzz
 mov r2.zw, l(0,0,1.000000,1.000000)
 
-	// Fix point light shadows
-	// Uses approximate offset and scale constants similar to sun shadows, this is far from perfect
-	// Creates some artifacts and clipping issues
+	// Fix point lights, including shadows:
 	ld_indexable(texture2d)(float,float,float,float) r24.xyzw, l(0, 0, 0, 0), t125.xyzw
-	mul r24.w, r1.x, l(0.00010)
-	add r24.w, r24.w, l(0.98)
-	mul r24.y, r24.y, l(0.00333333)
-	add r24.z, r24.w, -r24.y
-	mul r24.z, r24.z, -r24.x
-	add r2.x, r2.x, r24.z
+	// Move scaling before matrix transformation
+	mul r25.xyz, r1.xxxx, r2.xyzx
+	// Apply fix
+	add r24.w, r1.x, -r24.y
+	mul r24.w, r24.w, r24.x
+	add r25.x, r25.x, -r24.w
+	// Matrix transformation without scaling
+	dp3 r2.x, r25.xyzx, cb0[1].xyzx
+	dp3 r2.y, r25.xyzx, cb0[2].xyzx
+	dp3 r2.z, r25.xyzx, cb0[3].xyzx
+	// Fix r3 as well as it is used later
+	rcp r25.w, r1.x
+	mul r3.xyz, r2.xyz, r25.w
 
-dp3 r3.x, r2.xyzx, cb0[1].xyzx
-dp3 r3.y, r2.xyzx, cb0[2].xyzx
-dp3 r3.z, r2.xyzx, cb0[3].xyzx
-mul r2.xyz, r1.xxxx, r3.xyzx
+//dp3 r3.x, r2.xyzx, cb0[1].xyzx
+//dp3 r3.y, r2.xyzx, cb0[2].xyzx
+//dp3 r3.z, r2.xyzx, cb0[3].xyzx
+//mul r2.xyz, r1.xxxx, r3.xyzx
+
 ld_indexable(texture2d)(uint,uint,uint,uint) r4.xyz, r0.xyww, t5.xyzw
 ld_indexable(texture2d)(float,float,float,float) r5.xyzw, r0.xyww, t3.xyzw
 ld_indexable(texture2d)(float,float,float,float) r6.xyz, r0.xyww, t4.xyzw
@@ -195,6 +201,18 @@ max r1.y, r1.y, l(0.000000)
 min r1.y, r1.y, l(15.000000)
 ftou r13.z, r1.y
 mov r13.w, l(0)
+
+// Fix light tiles by adjusting integer pointer r13.x:
+// * r24.w is the fix from above
+// * r24.z is ±1, dependent on the rendered eye
+// * -0.0125 is l(1/80) from a few lines above
+// The complete fix translates to pointer.x += 1 - int(round(fix/80))
+	mul r24.w, r24.w, l(0.0125)
+	round_ne, r24.w, r24.w
+	ftoi r25.xyzw, r24.xyzw
+	iadd r13.x, r13.x, -r25.w
+	iadd r13.x, r13.x, r25.z
+
 ld_indexable(texture3d)(uint,uint,uint,uint) r1.yz, r13.xyzw, t10.zxyw
 ushr r1.w, r1.z, l(16)
 and r1.z, r1.z, l(0x0000ffff)
@@ -1064,7 +1082,6 @@ mul r1.xyzw, r5.wwww, r1.xyzw
 mad r1.xyzw, r1.xyzw, r11.xyzw, r2.xyzw
 ld_indexable(texture2d)(float,float,float,float) r2.xyz, r0.xyzw, t8.xyzw
 mad r1.xyzw, r1.xyzw, cb0[5].yyyy, r2.xyzx
-
 store_uav_typed u0.xyzw, r0.xyyy, r1.xyzw
 ret 
 // Approximately 0 instruction slots used

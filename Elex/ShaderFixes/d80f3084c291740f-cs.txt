@@ -64,7 +64,7 @@ if_z r1.w
   mad r3.xy, r2.xyxx, cb0[0].xyxx, cb0[0].zwzz
   mov r3.zw, l(0,0,1.000000,1.000000)
 
-	// Fix point light shadows:
+	// Fix point lights, including shadows:
 	ld_indexable(texture2d)(float,float,float,float) r24.xyzw, l(0, 0, 0, 0), t125.xyzw
 	// Move scaling before matrix transformation
 	mul r25.xyz, r1.wwww, r3.xyzx
@@ -199,6 +199,18 @@ if_z r1.w
   min r6.w, r6.w, l(15.000000)
   ftou r2.z, r6.w
   mov r2.w, l(0)
+
+// Fix light tiles by adjusting integer pointer r2.x:
+// * r24.w is the fix from above
+// * r24.z is ±1, dependent on the rendered eye
+// * -0.0125 is l(1/80) from a few lines above
+// The complete fix translates to pointer.x += 1 - int(round(fix/80))
+	mul r24.w, r24.w, l(0.0125)
+	round_ne, r24.w, r24.w
+	ftoi r25.xyzw, r24.xyzw
+	iadd r2.x, r2.x, -r25.w
+	iadd r2.x, r2.x, r25.z
+
   ld_indexable(texture3d)(uint,uint,uint,uint) r2.xy, r2.xyzw, t10.xyzw
   ushr r2.z, r2.y, l(16)
   and r2.y, r2.y, l(0x0000ffff)

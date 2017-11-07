@@ -5,12 +5,11 @@ This work in progress fix aims to make the game "ELEX" 3D vision ready.
 
 #####What is fixed:
 - Shadows from sun 
-- Point lights (they still have some tile issue) 
+- Point lights
 - Sky
 - Most decals (approximate fix)
 
 #####What is not fixed yet:
-- Light tiles
 - Light shafts
 - Some decals
 - HUD
