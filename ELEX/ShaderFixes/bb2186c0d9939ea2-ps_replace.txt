@@ -1,0 +1,179 @@
+// Volumetric fog and light shafts
+
+cbuffer _Globals : register(b0)
+{
+  uint2 SizeInTiles : packoffset(c0);
+  uint NumPermutations : packoffset(c0.z);
+  float4x4 ReprojectEye : packoffset(c1);
+  float2 NearFar : packoffset(c5);
+  float Exposure : packoffset(c5.z);
+}
+
+cbuffer CBClusteredLights : register(b8)
+{
+
+  struct
+  {
+    float4 m_vecClusteredSplitScheme;
+    float4 m_vecAnalyticFogSettings;
+    float3 m_vecFogDepthToSliceParams;
+    float m_fVolumeFogRange;
+    float3 m_vecCamDir;
+    float m_fCamHeight;
+    float m_fAerialPerspectiveDepthScale;
+    float3 m_vecFogColor;
+    float2 m_vecSpotShadowMapsSize;
+    float2 m_vecRcpSpotShadowMapsSize;
+  } ClusteredLighting : packoffset(c0);
+
+
+  struct
+  {
+    float3 m_vecDirection;
+    float m_fMinRoughness;
+    float3 m_vecColor;
+    float _padding0;
+    float3 m_vecVolumeColor;
+    float _padding1;
+  } ClusteredSunLight : packoffset(c6);
+
+
+  struct
+  {
+    float4x3 m_matCascadeLightSpaceTransform[4];
+    float4x3 m_matTerrainLightSpaceTransform[4];
+    float4 m_vecCascadeShadowSettings[4];
+    float4 m_vecCascadeSplits;
+    float4 m_vecTerrainSplits;
+    float2 m_vecNumSplits;
+    float2 m_vecCascadeFadOut;
+    float m_fCamHeightInMeter;
+    float m_fCascadeShadowMapSize;
+    float m_fRcpCascadeShadowMapSize;
+    float _padding0;
+    float4 m_vecCloudShadowScaleAndBias;
+  } ClusteredDirShadows : packoffset(c9);
+
+
+  struct
+  {
+    float4 m_arrLightData[6];
+    float m_fMinRoughness;
+    float m_fAreaHalfWidth;
+    float m_fAreaHalfHeight;
+    float m_fRcpSqrRadius;
+  } ClusteredPointLights[128] : packoffset(c42);
+
+
+  struct
+  {
+    uint m_iLightType;
+    uint m_iIESProfile;
+    float m_fRcpRadius;
+    float m_fMinRoughness;
+    float3 m_vecPos;
+    float m_fAreaHalfWidth;
+    float3 m_vecFwd;
+    float m_fAreaHalfHeight;
+    float3 m_vecLeft;
+    float m_fSpotScale;
+    float3 m_vecUp;
+    float m_fRcpSqrRadius;
+    float3 m_vecColor;
+    float m_fSpotBias;
+    float3 m_vecVolumeColor;
+    float m_fShadowMapSlice;
+    float3 m_vecVirtualOffset;
+    float m_fVirtualAreaHalfWidth;
+  } ClusteredSpotLights[128] : packoffset(c938);
+
+  float4x4 ClusteredSpotShadowMatrices[256] : packoffset(c1962);
+}
+
+SamplerState SmpClampPnt_s : register(s0);
+SamplerState SmpClampLin_s : register(s1);
+Texture2D<float> LinearDepth : register(t0);
+Texture3D<float4> VolumeFogColorAndDensity : register(t16);
+Texture3D<float3> APLuminance : register(t18);
+Texture3D<float3> APTransmittance : register(t19);
+Buffer<float4> g_StaticLightDust : register(t25);
+
+
+// 3Dmigoto declarations
+#define cmp -
+Texture1D<float4> IniParams : register(t120);
+Texture2D<float4> StereoParams : register(t125);
+
+
+void main(
+  float4 v0 : SV_Position0,
+  float4 v1 : TEXCOORD0,
+  float3 v2 : TEXCOORD1,
+  out float3 o0 : SV_Target0,
+  out float3 o1 : SV_Target1)
+{
+  float4 r0,r1,r2,r3,r4;
+  uint4 bitmask, uiDest;
+  float4 fDest;
+
+  r0.x = dot(v2.xyz, v2.xyz);
+  r0.x = rsqrt(r0.x);
+  r0.xyz = v2.xyz * r0.xxx;
+  r0.w = ClusteredLighting.m_vecAnalyticFogSettings.x * r0.y;
+  r1.x = dot(r0.xyz, ClusteredLighting.m_vecCamDir.xyz);
+  r1.x = rcp(r1.x);
+  r1.y = ClusteredLighting.m_fVolumeFogRange * r1.x;
+  r1.z = LinearDepth.SampleLevel(SmpClampPnt_s, v1.xy, 0).x;
+  r1.w = NearFar.y * r1.z;
+  r1.z = r1.z * NearFar.y + ClusteredLighting.m_vecFogDepthToSliceParams.x;
+  r1.z = log2(r1.z);
+  r2.z = r1.z * ClusteredLighting.m_vecFogDepthToSliceParams.y + ClusteredLighting.m_vecFogDepthToSliceParams.z;
+  r1.x = r1.w * r1.x + -r1.y;
+  r1.y = r0.y * r1.y + ClusteredLighting.m_fCamHeight;
+  r0.x = dot(ClusteredSunLight.m_vecDirection.xyz, r0.xyz);
+  r0.x = 1.25 + -r0.x;
+  r0.x = log2(r0.x);
+  r0.x = 1.5 * r0.x;
+  r0.x = exp2(r0.x);
+  r0.x = 0.0596830994 / r0.x;
+  r0.y = -r1.y * ClusteredLighting.m_vecAnalyticFogSettings.x + ClusteredLighting.m_vecAnalyticFogSettings.y;
+  r0.y = min(0, r0.y);
+  r0.y = exp2(r0.y);
+  r3.z = ClusteredLighting.m_fAerialPerspectiveDepthScale * r1.w;
+  r0.z = max(0, r1.x);
+  r0.w = r0.w * r0.z;
+  r1.x = exp2(-r0.w);
+  r1.x = 1 + -r1.x;
+  r1.x = r1.x / r0.w;
+  r0.w = cmp(0.00100000005 < abs(r0.w));
+  r0.w = r0.w ? r1.x : 0.693147182;
+  r0.y = r0.w * r0.y;
+  r0.y = r0.y * ClusteredLighting.m_vecAnalyticFogSettings.z + ClusteredLighting.m_vecAnalyticFogSettings.w;
+  r0.y = r0.y * r0.z;
+  r0.z = cmp(0 < r0.z);
+  r0.y = exp2(-r0.y);
+
+  // This texture was fixed in parent compute shaders.
+  r2.xy = v1.xy;
+  r1.xyzw = VolumeFogColorAndDensity.SampleLevel(SmpClampLin_s, r2.xyz, 0).xyzw;
+  r0.w = -r1.w * r0.y + r1.w;
+  r2.w = r1.w * r0.y;
+  r4.xyz = g_StaticLightDust.Load(float4(0,0,0,0)).xyz;
+  r4.xyz = ClusteredSunLight.m_vecVolumeColor.xyz * r0.xxx + r4.xyz;
+  r2.xyz = r4.xyz * r0.www + r1.xyz;
+  r0.xyzw = r0.zzzz ? r2.xyzw : r1.xyzw;
+
+  // This texture needs a fix here.
+  r3.xy = v1.xy;
+
+float4 stereo = StereoParams.Load(0);
+r3.x -= stereo.x * 0.5;
+
+  r1.xyz = APLuminance.SampleLevel(SmpClampLin_s, r3.xyz, 0).xyz;
+  r2.xyz = APTransmittance.SampleLevel(SmpClampLin_s, r3.xyz, 0).xyz;
+  o1.xyz = r2.xyz * r0.www;
+  r1.xyz = r1.xyz * r0.www;
+  r0.xyz = r0.xyz * ClusteredLighting.m_vecFogColor.xyz + r1.xyz;
+  o0.xyz = Exposure * r0.xyz;
+  return;
+}

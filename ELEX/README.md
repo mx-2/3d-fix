@@ -8,9 +8,9 @@ This work in progress fix aims to make the game "ELEX" 3D vision ready.
 - Point lights
 - Sky
 - Most decals (approximate fix)
+- Volumetric fog and light shafts
 
 #####What is not fixed yet:
-- Light shafts
 - Some decals
 - HUD
 - ...
