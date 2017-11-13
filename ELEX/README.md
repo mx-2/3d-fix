@@ -10,11 +10,11 @@ This work in progress fix aims to make the game "ELEX" 3D vision ready.
 - Some decals (approximate fix)
 - Volumetric fog and light shafts
 - Specular Highlights
+- Smoke and water splash
 
 #####What is not fixed yet:
 - Some other decals
 - HUD
-- Smoke and water splash
 - ...
 
 #####Installation:
