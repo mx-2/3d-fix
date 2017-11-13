@@ -237,17 +237,20 @@ if_z r2.x
   ftou r16.z, r1.y
   mov r16.w, l(0)
 
-// Fix light tiles by adjusting integer pointer r16.x:
-// * r24.w is the fix from above
-// * r24.z is ±1, dependent on the rendered eye
-// * -0.0125 is l(1/80) from a few lines above
-// The complete fix translates to pointer.x += 1 - int(round(fix/80))
-	mul r24.w, r24.w, l(0.0125)
+	// Fix light tiles by adjusting integer pointer r16.x:
+	// * r25.w is reciprocal depth from above
+	// * r24.z is ±1, dependent on the rendered eye
+	// * 40 is l(80/2) from a few lines above
+	// The complete fix translates to :
+	//   pointer.x += 1 - int(round(stereo.x * (1-depth/stereo.y) * 40))
+	mul r24.w, r25.w, r24.y
+	add r24.w, l(1.0), -r24.w
+	mul r24.w, r24.w, r24.x
+	mul r24.w, r24w, l(40.0)
 	round_ne, r24.w, r24.w
 	ftoi r25.xyzw, r24.xyzw
 	iadd r16.x, r16.x, -r25.w
 	iadd r16.x, r16.x, r25.z
-
 
   ld_indexable(texture3d)(uint,uint,uint,uint) r2.yz, r16.xyzw, t10.zxyw
   ushr r1.y, r2.z, l(16)

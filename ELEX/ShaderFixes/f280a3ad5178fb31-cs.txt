@@ -202,12 +202,16 @@ min r1.y, r1.y, l(15.000000)
 ftou r13.z, r1.y
 mov r13.w, l(0)
 
-// Fix light tiles by adjusting integer pointer r13.x:
-// * r24.w is the fix from above
-// * r24.z is ±1, dependent on the rendered eye
-// * -0.0125 is l(1/80) from a few lines above
-// The complete fix translates to pointer.x += 1 - int(round(fix/80))
-	mul r24.w, r24.w, l(0.0125)
+	// Fix light tiles by adjusting integer pointer r13.x:
+	// * r25.w is reciprocal depth from above
+	// * r24.z is ±1, dependent on the rendered eye
+	// * 40 is l(80/2) from a few lines above
+	// The complete fix translates to :
+	//   pointer.x += 1 - int(round(stereo.x * (1-depth/stereo.y) * 40))
+	mul r24.w, r25.w, r24.y
+	add r24.w, l(1.0), -r24.w
+	mul r24.w, r24.w, r24.x
+	mul r24.w, r24w, l(40.0)
 	round_ne, r24.w, r24.w
 	ftoi r25.xyzw, r24.xyzw
 	iadd r13.x, r13.x, -r25.w
