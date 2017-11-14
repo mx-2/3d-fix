@@ -14,9 +14,23 @@ This work in progress fix aims to make the game "ELEX" 3D vision ready.
 
 #####What is not fixed yet:
 - HUD
-- ...
+- Everything not found
+
+#####Known issues:
+- Point lights and clouds are clipped at the left and right of the screen
+- Ambient occlusion is a bit blurred when moving
 
 #####Installation:
 - Copy this folder structure into the directory which contains the ELEX.exe (should be ./system) so that "dxd3.ini" is in the same directory as the .exe.
 - Download latest version of 3Dmigoto and copy d3d11.dll next to the ELEX.exe
+
+#####Credits:
+- bo3b, DarkStarSword, Flugan and all others contributors for 3Dmigoto
+- DarkStarSword for explanations on Frame Analysis and Tile Lighting
+
+This fix is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Tested with ELEX v1.0 (GOG) on ultra setting on Windows 7 x64 with driver 358.87.
 
