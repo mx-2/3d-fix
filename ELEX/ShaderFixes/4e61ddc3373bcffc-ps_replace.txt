@@ -57,8 +57,6 @@ cbuffer _CommonMatrices : register(b3)
   float _padding2;
 }
 
-#include "inverseMatrix_GJ.hlsl"
-
 
 // 3Dmigoto declarations
 #define cmp -
@@ -86,6 +84,14 @@ void main(
   r2.z = 1 / r1.x;
   r2.xy = v2.xy;
   r2.w = 1;
+
+float4 stereo = StereoParams.Load(0);
+float4 tmp1, tmp2;
+
+// Fix clipping, needs one fudge constant, save unfixed r2 for use later
+tmp2 = r2;
+r2.x -= stereo.x * (r1.x - stereo.y / m_fFar)/r1.x * 9.35e2 * m_matInvProjection._m00;
+
   r3.x = dot(r2.xyzw, cb1[r1.y+4].xyzw);
   r3.y = dot(r2.xyzw, cb1[r1.y+5].xyzw);
   r3.z = dot(r2.xyzw, cb1[r1.y+6].xyzw);
@@ -93,36 +99,25 @@ void main(
   r2.xyz = r3.xyz / r1.zzz;
   r3.xy = r2.xy * cb1[r1.y+8].xy + cb1[r1.y+8].zw;
   r3.z = r2.z;
-
-// Transform back to world
-float4 stereo = StereoParams.Load(0);
-float4x4 matInvDecal = inverseMatrix_GJ(cb1[r1.y+4], cb1[r1.y+5], cb1[r1.y+6], cb1[r1.y+7]);
-float4 tmp;
-r3.w = 1;
-
-tmp.x = dot(r3.xyzw, matInvDecal._m00_m01_m02_m03);
-tmp.y = dot(r3.xyzw, matInvDecal._m10_m11_m12_m13);
-tmp.z = dot(r3.xyzw, matInvDecal._m20_m21_m22_m23);
-tmp.w = dot(r3.xyzw, matInvDecal._m30_m31_m32_m33);
-
-// Apply fix, still needs one fudge constant
-tmp.x -= stereo.x * (r1.x - stereo.y / m_fFar) * 748000000 * m_matInvProjection._m00;
-
-// Transform back to decal box
-r3.x = dot(tmp.xyzw, cb1[r1.y+4].xyzw);
-r3.y = dot(tmp.xyzw, cb1[r1.y+5].xyzw);
-r3.z = dot(tmp.xyzw, cb1[r1.y+6].xyzw);
-r3.w = dot(tmp.xyzw, cb1[r1.y+7].xyzw);
-r3.xyzw = r3.xyzw / r3.w; // renormalize
-
-// Needed later for texture positioning
-tmp.xy = (r3.xy - cb1[r1.y+8].zw) / cb1[r1.y+8].xy;
-
   r4.xyz = saturate(r3.xyz);
   r3.xyz = cmp(r3.xyz != r4.xyz);
   r1.z = (int)r3.y | (int)r3.x;
   r1.z = (int)r3.z | (int)r1.z;
   if (r1.z != 0) discard;
+
+// Calculate transformed unfixed r2.
+tmp1.x = dot(tmp2.xyzw, cb1[r1.y+4].xyzw);
+tmp1.y = dot(tmp2.xyzw, cb1[r1.y+5].xyzw);
+tmp1.z = dot(tmp2.xyzw, cb1[r1.y+6].xyzw);
+tmp1.w = dot(tmp2.xyzw, cb1[r1.y+7].xyzw);
+tmp1.xyz = tmp1.xyz / tmp1.www;
+
+// Fixed transformed r2 is required later to fix texcoord.
+tmp2 = r2;
+
+// Unfix transformed r2 to avoid texture blur in code below.
+r2.xyz = tmp1.xyz;
+
   r0.xyz = t2.Load(r0.xyz).xyz;
   r0.xyz = r0.xyz * float3(2,2,2) + float3(-1,-1,-1);
   r0.w = dot(r0.xyz, r0.xyz);
@@ -170,7 +165,7 @@ tmp.xy = (r3.xy - cb1[r1.y+8].zw) / cb1[r1.y+8].xy;
   r1.xy = r2.xy + -r1.xy;
 
 // Adjust texcoord
-r2.xy = tmp.xy;
+r2.xy = tmp2.xy;
 
   r0.y = t28.SampleGrad(s6_s, r2.xy, r0.z, r1.y).x;
   r0.y = cb2[0].x * r0.y;

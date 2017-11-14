@@ -7,13 +7,12 @@ This work in progress fix aims to make the game "ELEX" 3D vision ready.
 - Shadows from sun 
 - Point lights
 - Sky and moon
-- Some decals (approximate fix)
+- Decals
 - Volumetric fog and light shafts
 - Specular Highlights
 - Smoke and water splash
 
 #####What is not fixed yet:
-- Some other decals
 - HUD
 - ...
 
