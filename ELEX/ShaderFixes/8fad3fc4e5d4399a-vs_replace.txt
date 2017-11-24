@@ -1,0 +1,58 @@
+// Main Menu Background
+
+cbuffer _Globals : register(b0)
+{
+  float2 ViewSize : packoffset(c0);
+  float2 VideoSize : packoffset(c0.z);
+  bool VideoFullScreen : packoffset(c1);
+  bool UIMode : packoffset(c1.y);
+  float Time : packoffset(c1.z);
+}
+
+
+
+// 3Dmigoto declarations
+#define cmp -
+Texture1D<float4> IniParams : register(t120);
+Texture2D<float4> StereoParams : register(t125);
+
+
+void main(
+  float2 v0 : POSITION0,
+  float2 v1 : TEXCOORD0,
+  out float4 o0 : SV_Position0,
+  out float2 o1 : TEXCOORD0)
+{
+  float4 r0,r1,r2;
+  uint4 bitmask, uiDest;
+  float4 fDest;
+
+  r0.zw = v0.xy;
+  // Decompiler error here
+  //r1.xyzw = ViewSize.xzzw / ViewSize.ywxy;
+r1.x = ViewSize.x / ViewSize.y;
+r1.y = VideoSize.x / VideoSize.y;
+r1.z = VideoSize.x / ViewSize.x;
+r1.w = VideoSize.y / ViewSize.y;
+  r2.x = r1.y / r1.x;
+  r2.x = 1 / r2.x;
+  r0.xy = v0.yx * r2.xx;
+  r1.z = cmp(r1.w < r1.z);
+  r0.xy = r1.zz ? r0.zx : r0.yw;
+  r2.y = v0.y;
+  r0.z = 1 / r1.x;
+  r0.z = r1.y * r0.z;
+  r0.w = cmp(r1.y != r1.x);
+  r2.x = v0.x * r0.z;
+  r0.xy = VideoFullScreen ? r2.xy : r0.xy;
+  o0.xy = r0.ww ? r0.xy : v0.xy;
+  o0.zw = float2(0,1);
+  o1.xy = v1.xy;
+
+float4 stereo = StereoParams.Load(0);
+float4 params = IniParams.Load(0);
+// Push background a bit further
+o0.x += stereo.x * (params.x + 0.1);
+
+  return;
+}

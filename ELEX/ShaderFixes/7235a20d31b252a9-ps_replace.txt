@@ -1,0 +1,64 @@
+// HUD 5 (HEX pattern ingame menu)
+
+// 3Dmigoto declarations
+#define cmp -
+Texture1D<float4> IniParams : register(t120);
+Texture2D<float4> StereoParams : register(t125);
+
+
+void main(
+  float4 v0 : SV_Position0,
+  float2 v1 : TEXCOORD0,
+  out float4 o0 : SV_Target0)
+{
+  float4 r0,r1;
+  uint4 bitmask, uiDest;
+  float4 fDest;
+
+// Fix HEX pattern - 150 is a fitting constant
+float4 stereo = StereoParams.Load(0);
+float4 params = IniParams.Load(0);
+v0.x -= stereo.x * params.x * 150;
+
+  r0.x = 0.14433758 * v0.x;
+  r0.y = floor(r0.x);
+  r1.y = frac(r0.x);
+  r0.x = dot(v0.yx, float2(0.125,0.0721687898));
+  r0.z = floor(r0.x);
+  r1.x = frac(r0.x);
+  r0.x = r0.y + r0.z;
+  r0.x = 0.333333343 * r0.x;
+  r0.y = cmp(r0.x >= -r0.x);
+  r0.x = frac(abs(r0.x));
+  r0.x = r0.y ? r0.x : -r0.x;
+  r0.xy = cmp(r0.xx >= float2(0.333333343,0.666666687));
+  r0.xy = r0.xy ? float2(1,1) : 0;
+  r0.z = r1.y + r1.x;
+  r0.z = -1 + r0.z;
+  r1.zw = float2(1,1) + -r1.xy;
+  r0.xz = r0.xx * r0.zz + r1.zw;
+  r1.zw = -r1.yx * float2(2,2) + r1.xy;
+  r1.xy = cmp(r1.xy >= r1.yx);
+  r1.xy = r1.xy ? float2(1,1) : 0;
+  r0.xy = r0.yy * r1.zw + r0.xz;
+  r0.x = dot(r1.xy, r0.xy);
+  r0.x = -0.100000001 + r0.x;
+  r0.x = saturate(10 * r0.x);
+  r0.y = r0.x * -2 + 3;
+  r0.x = r0.x * r0.x;
+  r0.z = r0.y * r0.x;
+  r0.xy = r0.yy * r0.xx + float2(-0.5,0.5);
+  r0.w = cmp(0.5 >= r0.z);
+  r0.z = cmp(0.5 < r0.z);
+  r0.zw = r0.zw ? float2(1,1) : 0;
+  r0.y = r0.w * r0.y;
+  r0.x = 1 + -r0.x;
+  r0.xw = -r0.xx * float2(0.988235295,0.917647064) + float2(1,1);
+  r1.xy = float2(0.0117647061,0.0823529437) * r0.yy;
+  r0.xy = r0.zz * r0.xw + r1.xy;
+  r0.yz = float2(-0.0117647061,-0.0823529437) + r0.xy;
+  r0.x = 0;
+  o0.xyz = float3(0.100000001,0.100000001,0.100000001) * r0.xyz + float3(0,0.0117647061,0.0823529437);
+  o0.w = 0.800000012;
+  return;
+}

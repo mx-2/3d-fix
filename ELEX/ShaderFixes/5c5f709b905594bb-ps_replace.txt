@@ -1,0 +1,113 @@
+// HUD 4 (input boxes)
+
+cbuffer _Globals : register(b0)
+{
+  float4 ViewPort : packoffset(c0);
+  float AlphaPower : packoffset(c1) = {0.600000024};
+  float Time : packoffset(c1.y) = {0};
+  float Alpha : packoffset(c1.z) = {1};
+  float BackAlpha : packoffset(c1.w) = {0.800000012};
+}
+
+SamplerState SmpClampLin_s : register(s0);
+Texture2D<float2> SrcMaskTexture : register(t0);
+
+
+// 3Dmigoto declarations
+#define cmp -
+Texture1D<float4> IniParams : register(t120);
+Texture2D<float4> StereoParams : register(t125);
+
+
+void main(
+  float4 v0 : SV_Position0,
+  float2 v1 : TEXCOORD0,
+  out float4 o0 : SV_Target0)
+{
+  float4 r0,r1,r2,r3;
+  uint4 bitmask, uiDest;
+  float4 fDest;
+
+float4 filter = IniParams.Load(int2(2,0));
+if(filter.x == 0)
+{
+  float4 stereo = StereoParams.Load(0);
+  float4 params = IniParams.Load(0);
+  v1.x -= stereo.x * params.x * 1.3;
+}
+
+  r0.xyzw = float4(-2,-2,2,2) + v0.yxyx;
+  r1.x = dot(r0.xy, float2(0.100000001,0.0577350333));
+  r1.y = floor(r1.x);
+  r2.x = frac(r1.x);
+  r3.xyzw = float4(0.0333333351,0.115470067,0.0333333351,0.115470067) * r0.xyzw;
+  r1.xz = floor(r3.yw);
+  r0.y = r1.x + r1.y;
+  r0.y = 0.333333343 * r0.y;
+  r1.x = cmp(r0.y >= -r0.y);
+  r0.y = frac(abs(r0.y));
+  r0.y = r1.x ? r0.y : -r0.y;
+  r1.xy = cmp(r0.yy >= float2(0.333333343,0.666666687));
+  r1.xy = r1.xy ? float2(1,1) : 0;
+  r2.yw = frac(r3.yw);
+  r3.xy = Time * float2(2,2) + r3.xz;
+  r3.xy = sin(r3.xy);
+  r3.xy = r3.xy * float2(0.5,0.5) + float2(0.5,0.5);
+  r3.xy = r3.xy * float2(0.400000036,0.400000036) + float2(0.800000012,0.800000012);
+  r0.y = r2.y + r2.x;
+  r0.y = -1 + r0.y;
+  r3.zw = float2(1,1) + -r2.xy;
+  r1.xw = r1.xx * r0.yy + r3.zw;
+  r3.zw = -r2.yx * float2(2,2) + r2.xy;
+  r2.xy = cmp(r2.xy >= r2.yx);
+  r2.xy = r2.xy ? float2(1,1) : 0;
+  r1.xy = r1.yy * r3.zw + r1.xw;
+  r0.y = dot(r2.xy, r1.xy);
+  r0.y = -0.200000003 + r0.y;
+  r0.y = saturate(-10 * r0.y);
+  r1.x = r0.y * -2 + 3;
+  r0.y = r0.y * r0.y;
+  r0.y = r1.x * r0.y;
+  r0.y = r0.y * 0.100000024 + 0.899999976;
+  r1.xy = Time * float2(5,5) + r0.xz;
+  r0.x = dot(r0.zw, float2(0.100000001,0.0577350333));
+  r0.zw = sin(r1.xy);
+  r0.zw = r0.zw * float2(0.5,0.5) + float2(0.5,0.5);
+  r0.zw = r0.zw * float2(0.400000036,0.400000036) + float2(0.800000012,0.800000012);
+  r0.zw = r3.xy * r0.zw;
+  r0.y = r0.y * r0.z;
+  r1.xyw = v1.yyy * float3(-0.34117648,0.231372535,0) + float3(0.34117648,0.768627465,1);
+  r2.xy = SrcMaskTexture.SampleLevel(SmpClampLin_s, v1.xy, 0).xy;
+  r1.xyw = r2.yyy * r1.xyw;
+  r1.xyw = r2.xxx * float3(0,0.0117647061,0.0823529437) + r1.xyw;
+  r0.z = BackAlpha * r2.x;
+  o0.w = Alpha * r0.z;
+  o0.z = r1.w * r0.y;
+  r0.y = floor(r0.x);
+  r2.z = frac(r0.x);
+  r0.x = r1.z + r0.y;
+  r0.x = 0.333333343 * r0.x;
+  r0.y = cmp(r0.x >= -r0.x);
+  r0.x = frac(abs(r0.x));
+  r0.x = r0.y ? r0.x : -r0.x;
+  r0.xy = cmp(r0.xx >= float2(0.333333343,0.666666687));
+  r0.xy = r0.xy ? float2(1,1) : 0;
+  r0.z = r2.w + r2.z;
+  r0.z = -1 + r0.z;
+  r1.zw = float2(1,1) + -r2.zw;
+  r0.xz = r0.xx * r0.zz + r1.zw;
+  r1.zw = -r2.wz * float2(2,2) + r2.zw;
+  r2.xy = cmp(r2.zw >= r2.wz);
+  r2.xy = r2.xy ? float2(1,1) : 0;
+  r0.xy = r0.yy * r1.zw + r0.xz;
+  r0.x = dot(r2.xy, r0.xy);
+  r0.x = -0.200000003 + r0.x;
+  r0.x = saturate(-10 * r0.x);
+  r0.y = r0.x * -2 + 3;
+  r0.x = r0.x * r0.x;
+  r0.x = r0.y * r0.x;
+  r0.x = r0.x * 0.100000024 + 0.899999976;
+  r0.x = r0.x * r0.w;
+  o0.xy = r1.xy * r0.xx;
+  return;
+}

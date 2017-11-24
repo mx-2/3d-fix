@@ -1,0 +1,49 @@
+// Load screen background VS
+
+cbuffer _Globals : register(b0)
+{
+  float2 ViewSize : packoffset(c0);
+  float2 SrcTextureSize : packoffset(c0.z);
+  float Time : packoffset(c1);
+}
+
+
+
+// 3Dmigoto declarations
+#define cmp -
+Texture1D<float4> IniParams : register(t120);
+Texture2D<float4> StereoParams : register(t125);
+
+
+void main(
+  float4 v0 : POSITION0,
+  float2 v1 : TEXCOORD0,
+  out float4 o0 : SV_Position0,
+  out float2 o1 : TEXCOORD0)
+{
+  float4 r0;
+  uint4 bitmask, uiDest;
+  float4 fDest;
+
+// Decompiler error here
+//  r0.xy = ViewSize.xz / ViewSize.yw;
+r0.x = ViewSize.x / ViewSize.y;
+r0.y = SrcTextureSize.x / SrcTextureSize.y;
+  r0.z = 1 / r0.x;
+  r0.z = r0.y * r0.z;
+  r0.x = cmp(r0.y != r0.x);
+  r0.y = v0.x * r0.z;
+  o0.x = r0.x ? r0.y : v0.x;
+  o0.yzw = v0.yzw;
+
+float4 stereo = StereoParams.Load(0);
+float4 params = IniParams.Load(0);
+o0.x += stereo.x * params.x;
+
+  o1.xy = v1.xy;
+
+// Push background a bit further
+o1.x -= stereo.x * (params.x * 0.5 - 0.05);
+
+  return;
+}

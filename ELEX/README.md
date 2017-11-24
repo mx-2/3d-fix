@@ -11,9 +11,9 @@ This work in progress fix aims to make the game "ELEX" 3D vision ready.
 - Volumetric fog and light shafts
 - Specular Highlights
 - Smoke and water splash
+- HUD
 
 #####What is not fixed yet:
-- HUD
 - Everything not found
 
 #####Known issues:
@@ -26,11 +26,12 @@ This work in progress fix aims to make the game "ELEX" 3D vision ready.
 
 #####Credits:
 - bo3b, DarkStarSword, Flugan and all others contributors for 3Dmigoto
-- DarkStarSword for explanations on Frame Analysis and Tile Lighting
+- DarkStarSword for explanations on Frame Analysis, Tile Lighting and render target filtering
 
 This fix is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-Tested with ELEX v1.0 (GOG) on ultra setting on Windows 7 x64 with driver 358.87.
+Tested with ELEX v1.0 (GOG) on ultra setting and 1920x1080 resolution
+on Windows 7 x64 with driver 358.87.
 

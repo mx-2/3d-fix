@@ -1,0 +1,25 @@
+// Pre main menu "Loading" text
+
+
+// 3Dmigoto declarations
+#define cmp -
+Texture1D<float4> IniParams : register(t120);
+Texture2D<float4> StereoParams : register(t125);
+
+
+void main(
+  float2 v0 : POSITION0,
+  float2 v1 : TEXCOORD0,
+  out float4 o0 : SV_Position0,
+  out float2 o1 : TEXCOORD0)
+{
+  o0.xy = v0.xy;
+  o0.zw = float2(0,1);
+  o1.xy = v1.xy;
+
+float4 stereo = StereoParams.Load(0);
+float4 params = IniParams.Load(0);
+o0.x += stereo.x * params.x;
+
+  return;
+}
