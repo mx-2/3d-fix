@@ -11,6 +11,7 @@ This work in progress fix aims to make the game "ELEX" 3D vision ready.
 - Volumetric fog and light shafts
 - Specular Highlights
 - Smoke and water splash
+- Rain
 - HUD
 
 #####What is not fixed yet:

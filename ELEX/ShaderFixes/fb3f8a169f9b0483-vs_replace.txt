@@ -1,0 +1,82 @@
+// Rain mask
+
+cbuffer CBRain : register(b0)
+{
+
+  struct
+  {
+    float4 LayerUVRotation[4];
+    float4 LayerUVScaleAndOffset[4];
+    float4 LayerDepthScaleAndOffset[4];
+    float4 NoiseScaleAndOffset;
+    float3 ShadowMapScale;
+    float SoftDepthFactor;
+    float3 ShadowMapOffset;
+    float FarClip;
+    float3 CamDir;
+    float Exposure;
+    float3 FogDelpthToSlice;
+    float AlbedoMulExposure;
+    float2 RcpRenderTargetSize;
+    float Alpha;
+    float _padding0;
+    float4x4 CylinderMatrix;
+    float4x4 RainViewProjectionMatrix;
+  } Settings : packoffset(c0);
+
+}
+
+
+
+// 3Dmigoto declarations
+#define cmp -
+Texture1D<float4> IniParams : register(t120);
+Texture2D<float4> StereoParams : register(t125);
+
+
+void main(
+  float3 v0 : POSITION0,
+  float2 v1 : TEXCOORD0,
+  out float4 o0 : SV_Position0,
+  out float4 o1 : TEXCOORDS1,
+  out float4 o2 : TEXCOORDS23,
+  out float2 o3 : NOISETC0,
+  out float3 o4 : DIR0)
+{
+  float4 r0,r1;
+  uint4 bitmask, uiDest;
+  float4 fDest;
+
+  r0.w = 1;
+  r0.x = dot(v0.xyz, Settings.CylinderMatrix._m00_m10_m20);
+  r0.y = dot(v0.xyz, Settings.CylinderMatrix._m01_m11_m21);
+  r0.z = dot(v0.xyz, Settings.CylinderMatrix._m02_m12_m22);
+  o0.x = dot(r0.xyzw, Settings.RainViewProjectionMatrix._m00_m10_m20_m30);
+  o0.y = dot(r0.xyzw, Settings.RainViewProjectionMatrix._m01_m11_m21_m31);
+  o0.z = dot(r0.xyzw, Settings.RainViewProjectionMatrix._m02_m12_m22_m32);
+  o0.w = dot(r0.xyzw, Settings.RainViewProjectionMatrix._m03_m13_m23_m33);
+
+// Fix rain "shadow" map
+float4 stereo = StereoParams.Load(0);
+o0.x += stereo.x * (o0.w - stereo.y);
+
+  o4.xyz = r0.xyz;
+  r0.w = v1.y;
+  r0.xy = float2(-0.5,-0.5) + v1.xy;
+  r0.z = dot(r0.xy, Settings.LayerUVRotation[1].xy);
+  r0.zw = float2(0.5,0) + r0.zw;
+  o1.zw = r0.zw * Settings.LayerUVScaleAndOffset[1].xy + Settings.LayerUVScaleAndOffset[1].zw;
+  r1.x = dot(r0.xy, Settings.LayerUVRotation[0].xy);
+  r1.yw = v1.yy;
+  r0.zw = float2(0.5,0) + r1.xy;
+  o1.xy = r0.zw * Settings.LayerUVScaleAndOffset[0].xy + Settings.LayerUVScaleAndOffset[0].zw;
+  r1.z = dot(r0.xy, Settings.LayerUVRotation[2].xy);
+  r0.z = dot(r0.xy, Settings.LayerUVRotation[3].xy);
+  r0.xy = float2(0.5,0) + r1.zw;
+  o2.xy = r0.xy * Settings.LayerUVScaleAndOffset[2].xy + Settings.LayerUVScaleAndOffset[2].zw;
+  r0.w = v1.y;
+  r0.xy = float2(0.5,0) + r0.zw;
+  o2.zw = r0.xy * Settings.LayerUVScaleAndOffset[3].xy + Settings.LayerUVScaleAndOffset[3].zw;
+  o3.xy = v1.xy * Settings.NoiseScaleAndOffset.xy + Settings.NoiseScaleAndOffset.zw;
+  return;
+}
