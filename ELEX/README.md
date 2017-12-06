@@ -20,7 +20,8 @@ This work in progress fix aims to make the game "ELEX" 3D vision ready.
 
 #####Known issues:
 - Point lights are clipped at the left and right of the screen
-- Ambient occlusion is a bit blurred when moving as this game used temporal blur
+- Ambient occlusion is a bit blurred when moving as this game used temporal blur.
+  This can be disabled by pressing F3 in game.
 
 #####Installation:
 - Copy this folder structure into the directory which contains the ELEX.exe (should be ./system) so that "dxd3.ini" is in the same directory as the .exe.
