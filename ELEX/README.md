@@ -13,6 +13,7 @@ This work in progress fix aims to make the game "ELEX" 3D vision ready.
 - Smoke and water splash
 - Rain
 - HUD
+- Auto crosshair
 
 #####What is not fixed yet:
 - Everything not found
