@@ -27,7 +27,13 @@ This work in progress fix aims to make the game "ELEX" 3D vision ready.
 - Copy this folder structure into the directory which contains the ELEX.exe (should be ./system) so that "dxd3.ini" is in the same directory as the .exe.
 - Download latest version of 3Dmigoto and copy d3d11.dll next to the ELEX.exe
 
+#####Hotkeys:
+- F2 cycles between various HUD depths, however the HEX pattern is only correct at the standard depth
+- F3 disables temporal part of ambient occlusion blur
+- F4 cycles between two convergence presets, one for gameplay, one for MFD
+
 #####Changelog:
+- v1.2: Fixed rain, added auto-crosshair and added hotkeys 
 - v1.1: Fixed HUD and some minor improvements
 - v1.0: Initial Release
 
@@ -39,6 +45,6 @@ This fix is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-Tested with ELEX v1.0 (GOG) on ultra setting and 1920x1080 resolution
+Tested with ELEX v1.0.2846 (GOG) on ultra setting and 1920x1080 resolution
 on Windows 7 x64 with driver 358.87.
 
