@@ -33,7 +33,7 @@ This work in progress fix aims to make the game "ELEX" 3D vision ready.
 - F4 cycles between two convergence presets, one for gameplay, one for MFD
 
 #####Changelog:
-- v1.2: Fixed rain, added auto-crosshair and added hotkeys 
+- v1.2: Fixed rain, decals now work at any FoV, added auto-crosshair and added hotkeys
 - v1.1: Fixed HUD and some minor improvements
 - v1.0: Initial Release
 
