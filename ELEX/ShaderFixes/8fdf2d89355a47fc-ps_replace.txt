@@ -27,10 +27,11 @@ void main(
   uint4 bitmask, uiDest;
   float4 fDest;
 
-// Fix HEX pattern - 150 is a fitting constant
+// Fix HEX pattern
 float4 stereo = StereoParams.Load(0);
 float4 params = IniParams.Load(0);
-v0.x -= stereo.x * params.x * 150;
+params.z = IniParams.Load(int2(1,0)).x / 2;
+v0.x -= stereo.x * params.x * params.z;
 
   r0.x = 0.14433758 * v0.x;
   r0.y = floor(r0.x);

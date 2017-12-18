@@ -71,11 +71,14 @@ if_nz cb0[1].y
   mad r2.xyz, r1.yyyy, l(0.000000, 0.0117647061, 0.0823529437, 0.000000), -r0.xyzx
   mad r0.xyz, r1.xxxx, r2.xyzx, r0.xyzx
 
-// Fix HEX pattern - 150 is a fitting constant
+// Fix HEX pattern 
 ld_indexable(texture1d)(float,float,float,float) r6.xyzw, l(0, 0, 0, 0), t120.xyzw
+ld_indexable(texture1d)(float,float,float,float) r6.z, l(1, 0, 0, 0), t120.zwxy
 ld_indexable(texture2d)(float,float,float,float) r7.xyzw, l(0, 0, 0, 0), t125.xyzw
+add r6.x, r6.x, l(0.1)
 mul r6.x, r6.x, r7.x
-mul r6.x, r6.x, l(150.0)
+mul r6.z, r6.z, -l(0.5)
+mul r6.x, r6.x, r6.z
 mov r7.xy, v0.xy
 add r7.x, r7.x, r6.x
 mul r1.x, r7.x, l(0.144337580)
