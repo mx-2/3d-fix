@@ -90,12 +90,12 @@ void main(
   r2.w = 1;
 
 float4 stereo = StereoParams.Load(0);
+stereo.w = IniParams.Load(int2(1,0)).x / 2;
 float4 tmp1, tmp2;
 
-// Fix clipping, save unfixed r2 for use later
-// needs one fudge constant, independent of FoV !
+// Fix clipping, save unfixed r2 for use later, independent of FoV !
 tmp2 = r2;
-r2.x -= stereo.x * (r1.x - stereo.y / m_fFar)/r1.x * 960;
+r2.x -= stereo.x * (r1.x - stereo.y / m_fFar)/r1.x * stereo.w;
 
   r3.x = dot(r2.xyzw, cb1[r1.y+4].xyzw);
   r3.y = dot(r2.xyzw, cb1[r1.y+5].xyzw);
