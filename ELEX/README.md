@@ -22,6 +22,7 @@ This work in progress fix aims to make the game "ELEX" 3D vision ready.
 - Point lights are clipped at the left and right of the screen
 - Ambient occlusion is a bit blurred when moving as this game used temporal blur.
   This can be disabled by pressing F3 in game.
+- Dialog boxes are clipped at the edges, especially on high HUD depths.
 
 #####Installation:
 - Copy this folder structure into the directory which contains the ELEX.exe (should be ./system) so that "dxd3.ini" is in the same directory as the .exe.
@@ -33,6 +34,9 @@ This work in progress fix aims to make the game "ELEX" 3D vision ready.
 - F4 cycles between two convergence presets, one for gameplay, one for MFD
 
 #####Changelog:
+- v1.3: Ported tile lighting fix to ShaderRegex to catch all missing shaders
+        Decal fix now works at any resolution
+        Menu HEX pattern fix now works on any resolution and HUD depth
 - v1.2: Fixed rain, decals now work at any FoV, added auto-crosshair and added hotkeys
 - v1.1: Fixed HUD and some minor improvements
 - v1.0: Initial Release
@@ -48,3 +52,4 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 Tested with ELEX v1.0.2846 (GOG) on ultra setting and 1920x1080 resolution
 on Windows 7 x64 with driver 358.87.
 
+** This fix may not work if the Evil Update (KB2670838) is installed! **
