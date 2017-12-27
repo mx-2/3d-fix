@@ -1,4 +1,4 @@
-// HUD 4 (input boxes)
+// HUD 4 (dialog boxes and MFD)
 
 cbuffer _Globals : register(b0)
 {
@@ -29,6 +29,7 @@ void main(
   float4 fDest;
 
 float4 filter = IniParams.Load(int2(2,0));
+// Filter dialog boxes
 if(filter.x == 0)
 {
   float4 stereo = StereoParams.Load(0);
