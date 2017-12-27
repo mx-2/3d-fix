@@ -1,7 +1,12 @@
 # ELEX 3D vision fix
 ========
 
-This work in progress fix aims to make the game "ELEX" 3D vision ready.
+This fix aims to make the game "ELEX" 3D vision ready.
+
+It is tested with ELEX v1.0.2946 (GOG) on ultra setting and 1920x1080 resolution
+on Windows 7 x64 with driver 358.87.
+
+** This fix may not work if the Evil Update (KB2670838) is installed! **
 
 #####What is fixed:
 - Shadows from sun 
@@ -34,6 +39,7 @@ This work in progress fix aims to make the game "ELEX" 3D vision ready.
 - F4 cycles between two convergence presets, one for gameplay, one for MFD
 
 #####Changelog:
+- v1.4: Ported most fixes to ShaderRegex and updated the fix to patch 1.0.2946
 - v1.3: Ported tile lighting fix to ShaderRegex to catch all missing shaders
         Decal fix now works at any resolution
         Menu HEX pattern fix now works on any resolution and HUD depth
@@ -48,8 +54,3 @@ This work in progress fix aims to make the game "ELEX" 3D vision ready.
 This fix is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-Tested with ELEX v1.0.2846 (GOG) on ultra setting and 1920x1080 resolution
-on Windows 7 x64 with driver 358.87.
-
-** This fix may not work if the Evil Update (KB2670838) is installed! **
