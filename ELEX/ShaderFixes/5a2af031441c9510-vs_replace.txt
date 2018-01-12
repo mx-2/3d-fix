@@ -20,7 +20,7 @@ Texture1D<float4> IniParams : register(t120);
 Texture2D<float4> StereoParams : register(t125);
 
 // Copied in with 3Dmigoto
-cbuffer _CommonMatrices : register(b1)
+cbuffer _CommonMatrices : register(b13)
 {
     float4x4 m_matViewProjection;
     float4x4 m_matInvProjection;
