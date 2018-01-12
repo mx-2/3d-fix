@@ -6,7 +6,7 @@ This fix aims to make the game "ELEX" 3D vision ready.
 It is tested with ELEX v1.0.2946 (GOG) on ultra setting and 1920x1080 resolution
 on Windows 7 x64 with driver 358.87.
 
-** This fix may not work if the Evil Update (KB2670838) is installed! **
+** This fix may not work on Windows 10 or if the Evil Update (KB2670838) is installed! **
 
 #####What is fixed:
 - Shadows from sun 
@@ -20,7 +20,7 @@ on Windows 7 x64 with driver 358.87.
 - HUD
 - Auto crosshair
 
-#####What is not fixed yet:
+#####What is not fixed:
 - Everything not found
 
 #####Known issues:
@@ -39,6 +39,7 @@ on Windows 7 x64 with driver 358.87.
 - F4 cycles between two convergence presets, one for gameplay, one for MFD
 
 #####Changelog:
+- v1.5: Fixed some crash issues
 - v1.4: Ported most fixes to ShaderRegex and updated the fix to patch 1.0.2946
 - v1.3: Ported tile lighting fix to ShaderRegex to catch all missing shaders
         Decal fix now works at any resolution
@@ -50,6 +51,7 @@ on Windows 7 x64 with driver 358.87.
 #####Credits:
 - bo3b, DarkStarSword, Flugan and all others contributors for 3Dmigoto
 - DarkStarSword for explanations on Frame Analysis, Tile Lighting and render target filtering
+- skr68 and DHR for tracking down the crash issues
 
 This fix is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
